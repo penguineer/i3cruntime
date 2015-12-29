@@ -61,10 +61,6 @@ static BOOTLOADER_FUNCTIONS bootloader_functions = {
   SREG = sreg; \
 }
 
-/*
- * For some reason this is not defined for the ATTINY44
- */
-#define RWWSRE 4
 
 /*
  * Macro to erase and write a flash page without interruptions.
@@ -79,6 +75,9 @@ static BOOTLOADER_FUNCTIONS bootloader_functions = {
  * 	present in the ATTINY44, therefore we omit the call.
  *
  * 	TODO Check if there is an alternative action we have to pursue.
+ *
+ * 	If the call should be enabled, you need to
+ * 	#define RWWSRE 4
  */
 #define boot_program_erase_write(pageAddr) \
 { \
@@ -89,7 +88,7 @@ static BOOTLOADER_FUNCTIONS bootloader_functions = {
   boot_spm_busy_wait(); \
   boot_page_write((uint32_t)(pageAddr)); \
   boot_spm_busy_wait(); \
-  boot_rww_enable(); \
+  /*   boot_rww_enable();  */ \
   SREG = sreg; \
 }
 
