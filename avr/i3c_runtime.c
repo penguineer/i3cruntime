@@ -185,7 +185,13 @@ int main(void)
   // has been flashed onto the device.
   bootloader_flash_init();
 
+  // TODO define the actual runtime content
+
   // Boot loader main loop
+  // 		Ideally this loop is iterated only once,
+  //		except there is an update available and
+  //		the application decides to hand over to
+  //		the bootloader.
   for (;;) {
     // call the boot loader code
     start_bootloader();
@@ -193,6 +199,8 @@ int main(void)
     // boot loader returns here if there is nothing to do
     
     // Get the library functions from the Flash memory
+    //		This is necessary because the struct may
+    //		have changed during the bootloader call.
     memcpy_P(&bootloader_functions,
 	     (PGM_P) BOOTLOADER_FUNC_ADDRESS,
 	     sizeof(bootloader_functions));
@@ -203,6 +211,6 @@ int main(void)
 	(*bootloader_functions.app_main)();
     }
   }
-  
+
   return 0;
 }
