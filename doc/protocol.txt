@@ -1,0 +1,59 @@
+Der Protokoll-Stack ist an das OSI-Modell angelehnt. Wir haben
+drei Schichten:
+
+ 
+        +-------------------------+
+        | Application (App)       |
+        +-------------------------+
+        | Communication Handler   |
+        +-------------------------+
+        | I³C Bus                 |
+        | (I²C-Bus + INT-Leitung) |
+        +-------------------------+
+ 
+ 
+Ein Datenpaket besteht aus 2 Bytes zu je 8 Bit und hat folgenden Aufbau:
+ 
++--------------+--------------+
+| Data         | PC | CS | CRC|
++--------------+--------------+
+ 
+ Data: 8 Bits Payload
+ PC:   3 Bits
+ CS:   2 Bits
+ CRC:  3 Bits
+ 
+ * CRC ist die bereits besprochene Checksumme.
+ * CS ist ein Status und ist als Zahl kodiert. Damit ergeben sich die
+   Zustände:
+    0) RESET (Es gab einen Fehler in der Kommunikation im
+       aktuellen Frame und dieses wird verworfen). Setzen dieses Bytes
+       durch den Client bedeutet implizit, dass weitere Daten anliegen
+       (nämlich die, deren Übertragung gerade gescheitert ist). Der
+       Server kann entscheiden ob er die direkt anfordert oder zunächst
+       mit einem anderen Client reden will. Setzt der Server das
+       RESET-Bit, bricht der Client die Übertragung ab und wartet auf
+       neue Kommandos.
+    1) DATA (es gibt auch nach Abarbeitung des aktuellen Frames noch
+       weitere Daten)
+    2) START (leitet einen neuen Frame ein)
+    3) unbelegt (ggf. Kennzeichnung von Re-Sends?)
+ * PC ist der Packet Counter im aktuellen Frame. Bei CS=2 wird dieser auf die
+   Anzahl der noch folgenden Pakete im Frame gesetzt. Bei jedem Paket im Frame 
+   wird der PC dekrementiert.
+ 
+Wenn CS=2 ist, enthält das Daten-Byte ein 8-Bit Command.
+ 
+Struktur eines Frames:
+======================
+            +-----------+
+  Paket 1   | 000O 0000 |   O000 OOOO=OpCode
+            +-----------+
+  Paket 2   |    Data   |   Parameter-Byte 1
+            +-----------+
+                ....
+            +-----------+
+  Paket 9   |    Data   |   Parameter-Byte 8
+            +-----------+
+ 
+ 
