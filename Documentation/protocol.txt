@@ -47,6 +47,7 @@ Aufbau:
  * CRC ist die bereits besprochene Checksumme.
 
 Wenn CS=2 ist, enthält das Daten-Byte ein 8-Bit Command.
+<<<<<<< HEAD:doc/protocol.txt
 
 Struktur eines Frames
 ---------------------
@@ -172,3 +173,28 @@ offene Fragen:
 Range 200-230 zu finden. Dann wüsste der Communication Handler bereits, wann
 ein erweitertes Managementframe geschrieben werden muss und ggf auch, wie es
 auszufüllen ist.
+=======
+ 
+Struktur eines Frames:
+======================
+
+          +--------------+----------------+
+Paket 1   | OpCode       | 111 | 10 | CRC |
+          +--------------+----------------+
+Paket 2   | Parameter 1  | 111 | 00 | CRC |
+          +--------------+----------------+
+Paket 3   | Parameter 2  | 110 | 00 | CRC |
+          +--------------+----------------+
+Paket 4   | Parameter 3  | 101 | 00 | CRC |
+          +--------------+----------------+
+Paket 5   | Parameter 4  | 100 | 00 | CRC |
+          +--------------+----------------+
+Paket 6   | Parameter 5  | 011 | 00 | CRC |
+          +--------------+----------------+
+Paket 7   | Parameter 6  | 010 | 00 | CRC |
+          +--------------+----------------+
+Paket 8   | Parameter 7  | 001 | 00 | CRC |
+          +--------------+----------------+
+Paket 9   | Parameter 8  | 000 | 00 | CRC |
+          +--------------+----------------+
+>>>>>>> 45abbeaba0081c418fc2ba871038ed849dc2491d:Documentation/protocol.txt
