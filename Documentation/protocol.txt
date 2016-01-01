@@ -73,14 +73,13 @@ Paket 9   | Parameter 8  | 000 | 00 | CRC |
 
 Management-Pakete
 =================
-Managementpakete dienen der Steuerung des Protokolls.
+Managementpakete dienen der Steuerung des Protokolls und bestehen aus 2 Byte.
 Wird vom Slave ein Datenpaket empfangen, wobei der Frame noch nicht
 abgeschlossen ist, wird mit einem Managementpaket geantwortet.
-Ein Managementpaket besteht aus 1 Byte zu 8 Bit und hat folgenden Aufbau:
 
-+--------------+
-| PC | CS | CRC|
-+--------------+
++--------------+--------------+
+| PC | CS | CRC| DATA (?)     |
++--------------+--------------+
 
 * PC:    3 Bits
 * CS:    2 Bits
@@ -100,15 +99,9 @@ Ein Managementpaket besteht aus 1 Byte zu 8 Bit und hat folgenden Aufbau:
  * CRC Checksumme des Managementpakets. Es kommt der selbe Algorithmus wie bei
        den Datenpaketen zum Einsatz.
 
-Sofern ein Managementpaket das letzte Paket eines Frames quittiert und dieses
-Frame eine Anfrage zum Senden von Daten (Kommandos 253,249) beinhaltet, ist das
-Managementpaket abweichend wie folgt aufgebaut:
-
-+--------------+--------------+
-| PC | CS | CRC|   Value      |
-+--------------+--------------+
-
-Value ist der Wert des zu lesenden Datenbytes.
+Sofern ein Managementpaket das letzte Paket eines Frames quittiert und
+dieses Frame eine Anfrage zum Senden von Daten (Kommandos 253,249)
+beinhaltet, enthält der DATA-Teil den Wert des zu lesenden Datenbytes.
 
 Ablauf von Kommunikation im Regelfall
 =====================================
@@ -130,14 +123,12 @@ t
 |  +--------------+--------------+
 |  |  0 |  2 | CRC|      255     |
 |  +--------------+--------------+
-|                                         +--------------+
-|  				          |  0 |  1 | CRC|
-|                                         +--------------+
-|
+|                                         +--------------+--------------+
+|                                         |  0 |  1 | CRC|    GARBAGE   |
+|                                         +--------------+--------------+
 |  +--------------+--------------+
 |  |  0 |  2 | CRC|      253     |
 |  +--------------+--------------+
-|
 |                                         +--------------+--------------+
 |  				          |  0 |  0 | CRC|      VALUE   |
 |                                         +--------------+--------------+
@@ -147,7 +138,6 @@ t
 |  +--------------+--------------+
 |  |  0 |  3 | CRC|      253     |
 |  +--------------+--------------+
-|
 |                                         +--------------+--------------+
 |  				          |  0 |  0 | CRC|      VALUE   |
 |                                         +--------------+--------------+
@@ -157,9 +147,9 @@ t
 |  +--------------+--------------+
 |  |  0 |  2 | CRC|      255     |
 |  +--------------+--------------+
-|                                         +--------------+
-|                                         |  0 |  0 | CRC|
-|                                         +--------------+
+|                                         +--------------+--------------+
+|                                         |  0 |  0 | CRC|    GARBAGE   |
+|                                         +--------------+--------------+
 |
 |
 v
