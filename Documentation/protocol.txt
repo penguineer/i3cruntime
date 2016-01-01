@@ -78,7 +78,7 @@ Wird vom Slave ein Datenpaket empfangen, wobei der Frame noch nicht
 abgeschlossen ist, wird mit einem Managementpaket geantwortet.
 
 +--------------+--------------+
-| PC | CS | CRC| DATA (?)     |
+|  DATA (?)    | PC | CS | CRC|
 +--------------+--------------+
 
 * PC:    3 Bits
@@ -121,34 +121,34 @@ t
 |  =================================     =================================
 |
 |  +--------------+--------------+
-|  |  0 |  2 | CRC|      255     |
+|  |     255      | 0 |  2 | CRC |
 |  +--------------+--------------+
 |                                         +--------------+--------------+
-|                                         |  0 |  1 | CRC|    GARBAGE   |
+|                                         |   GARBAGE    | 0 |  1 | CRC |
 |                                         +--------------+--------------+
 |  +--------------+--------------+
-|  |  0 |  2 | CRC|      253     |
+|  |     253      | 0 |  2 | CRC |
 |  +--------------+--------------+
 |                                         +--------------+--------------+
-|  				          |  0 |  0 | CRC|      VALUE   |
+|  				          |  VALUE       | 0 |  0 | CRC |
 |                                         +--------------+--------------+
 |
 |  An dieser Stelle tritt eine Störung des i²C-Bus auf. Die CRC-Berechnung kommt
 |  nach der Übermittlung nicht zum selben Ergebnis. Der Master fragt erneut an.
 |  +--------------+--------------+
-|  |  0 |  3 | CRC|      253     |
+|  |     253      | 0 |  3 | CRC |
 |  +--------------+--------------+
 |                                         +--------------+--------------+
-|  				          |  0 |  0 | CRC|      VALUE   |
+|  				          |  VALUE       | 0 |  0 | CRC |
 |                                         +--------------+--------------+
 |
 |  Eine erneute Statusabfrage wird genutzt um dem Client den korrekten
 |  Empfang von Daten zu signalisieren. Diesmal liegen keine weiteren Daten vor.
 |  +--------------+--------------+
-|  |  0 |  2 | CRC|      255     |
+|  |     255      | 0 |  2 | CRC |
 |  +--------------+--------------+
 |                                         +--------------+--------------+
-|                                         |  0 |  0 | CRC|    GARBAGE   |
+|  				          |  GARBAGE     | 0 |  0 | CRC |
 |                                         +--------------+--------------+
 |
 |
