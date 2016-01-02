@@ -106,7 +106,7 @@ Managementpaket geantwortet.
       den Datenpaketen zum Einsatz.
 
 Sofern ein Managementpaket das letzte Paket eines Frames quittiert und
-dieses Frame eine Anfrage zum Senden von Daten (OPCodes 253,249)
+dieses Frame eine Anfrage zum Senden von Daten (OPCodes 2,3)
 beinhaltet, enthält der DATA-Teil den Wert des zu lesenden Datenbytes.
 
 
