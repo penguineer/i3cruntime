@@ -10,15 +10,15 @@ drei Schichten:
         | (I²C-Bus + INT-Leitung) |
         +-------------------------+
 
+Die Ebene des Communication Handlers definiert sich wie folgt:
 Paketarten
 ==========
 
 Datenpakete
 -----------
-Datenpakete dienen der Übertragung von Kommandos und Daten und können in Frames
-zusammengefasst werden. Datenpakete können nur vom Server zu Clients verschickt
-werden. Ein Datenpaket besteht aus 2 Bytes zu je 8 Bit und hat folgenden
-Aufbau:
+Datenpakete dienen der Übertragung von Opcodes und Daten und können in
+Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
+8 Bit und hat folgenden Aufbau:
 
 +--------------+--------------+
 | Data         | PC | CS | CRC|
@@ -34,25 +34,38 @@ Aufbau:
    wird der PC dekrementiert.
  * CS ist ein Status und ist als Zahl kodiert. Damit ergeben sich die
    Zustände:
-    0) RESET (Es gab einen Fehler in der Kommunikation im
-       aktuellen Paket und dieses wird verworfen). Setzt der Server das
-       RESET-Bit, bricht der Client die Übertragung ab und wartet auf
-       neue Kommandos. Setzt der Client das RESET-Bit, überträgt
-       der Server das Paket erneut.
-    1) DATA (es gibt auch nach Abarbeitung des aktuellen Frames noch
-       weitere Daten)
+    0) ACK (alles ist OK)
+    1) Unterscheidung nach Kommunikationsrichtung:
+       a) client-to-server: DATA (es gibt auch nach Abarbeitung des aktuellen 
+          Frames noch weitere Daten)
+       b) server-to-client: RSTART (es handelt sich um einen Re-Transmit
+          eines bereits gesendeten Start-Frames)
     2) START (leitet einen neuen Frame ein)
     3) ERROR (Es kam zu einem Problem bei der Datenübertragung. Anforderung,
-	     der erneuten Übermittlung des Pakets)
- * CRC ist die bereits besprochene Checksumme.
+	     der erneuten Übermittlung des Pakets) Der eigentliche
+	     Fehler ist im DATA-Teil des Pakets per ERROR-Status-Byte
+	     beschrieben
+ * CRC ist eine 3-bittige Checksumme über die restlichen 13 Bit.
+   
 
 Wenn CS=2 ist, enthält das Daten-Byte ein 8-Bit Command.
  
+ 
+Aufbau des ERROR-Status-Byte
+----------------------------
+
+0 - Abort        - Abbruch der Kommunikation, Verwerfen des aktuellen
+                   Frames
+1 - CRC Fehler   - das letzte Paket wird erneut verschickt
+2 - FRAME-ERROR  - Der Frame wird aufgrund von Paketverlust verworfen, 
+		   Der Master startet die Übertragung des Frames erneut.
+3 - OPCODE-ERROR - Der OPCode wurde nicht erkannt
+
 Struktur eines Frames:
 ---------------------
 
           +--------------+----------------+
-Paket 1   | OpCode       | 111 | 10 | CRC |
+Paket 1   | OPCode       | 111 | 10 | CRC |
           +--------------+----------------+
 Paket 2   | Parameter 1  | 111 | 00 | CRC |
           +--------------+----------------+
@@ -73,9 +86,9 @@ Paket 9   | Parameter 8  | 000 | 00 | CRC |
 
 Management-Pakete
 =================
-Managementpakete dienen der Steuerung des Protokolls und bestehen aus 2 Byte.
-Wird vom Slave ein Datenpaket empfangen, wobei der Frame noch nicht
-abgeschlossen ist, wird mit einem Managementpaket geantwortet.
+Managementpakete dienen der Steuerung des Protokolls und bestehen aus 2
+Byte. Wird vom Slave ein Datenpaket empfangen, wird mit einem
+Managementpaket geantwortet.
 
 +--------------+--------------+
 |  DATA (?)    | PC | CS | CRC|
@@ -84,35 +97,32 @@ abgeschlossen ist, wird mit einem Managementpaket geantwortet.
 * PC:    3 Bits
 * CS:    2 Bits
 * CRC:   3 Bit
-* PC ist der Wert des PC des Datenpakets auf den sich dieses Managementpaket
-     bezieht
-* CS ist der als Zahl kodierte Status. Es ergeben sich die Zustände
-    0) RESET - Es gab einen Fehler in der Kommunikation im
-       aktuellen Paket und dieses wird verworfen. Setzt der Client das
-       RESET-Bit, schickt der Server das zuletzt verschickte Paket erneut.
-    1) DATA (es gibt auch nach Abarbeitung des aktuellen Frames noch
-       weitere Daten) Das setzen des DATA-Bits ist semantisch äquivalent
-       zur Aktivierung der Interrupt-Leitung.
-    2) START (leitet einen neuen Frame ein, wird vom Client nicht gesetzt)
-    3) ERROR es ist ein Fehler bei der Ausführung der letzten Operation 
-	     aufgetreten.
- * CRC Checksumme des Managementpakets. Es kommt der selbe Algorithmus wie bei
-       den Datenpaketen zum Einsatz.
+
+* PC  ist der Wert des PC des Datenpakets auf den sich dieses Managementpaket
+      bezieht
+* CS  ist der als Zahl kodierte Status. Es ergeben sich die selben
+      Zustände wie bei Datenpaketen.
+* CRC Checksumme des Managementpakets. Es kommt der selbe Algorithmus wie bei
+      den Datenpaketen zum Einsatz.
 
 Sofern ein Managementpaket das letzte Paket eines Frames quittiert und
-dieses Frame eine Anfrage zum Senden von Daten (Kommandos 253,249)
+dieses Frame eine Anfrage zum Senden von Daten (OPCodes 253,249)
 beinhaltet, enthält der DATA-Teil den Wert des zu lesenden Datenbytes.
+
+
+Verhalten
+=========
+
+* Jedes Paket wird vom Empfänger anhand der CRC geprüft und mit Hilfe
+  eines Management-Pakets quittiert. Der Master reagiert entsprechend
+  der Übertragungserfolgsnachricht.
+* Jeder Client muss das Daten-Byte des letzten vom client verschickten
+  Pakets so bereit halten, bis das nächste Paket erfolgreich ausgewertet
+  ist.
+
 
 Ablauf von Kommunikation im Regelfall
 =====================================
-Jedes Paket wird vom Empfänger anhand der CRC geprüft und mit Hilfe eines
-Management-Pakets quittiert. Der Master reagiert entsprechend der
-Übertragungserfolgsnachricht.
-
-offene Fragen:
-* Was passiert, wenn dieses Paket nicht korrekt übertragen wurde?
-* Wie häufig finden retransmits statt?
-
 Darstellung der Kommunikation zur Statusabfrage mit anschließendem Lesen von
 Daten.
 
@@ -121,34 +131,41 @@ t
 |  =================================     =================================
 |
 |  +--------------+--------------+
-|  |     255      | 0 |  2 | CRC |
+|  |       2      | 0 |  1 | CRC |
 |  +--------------+--------------+
 |                                         +--------------+--------------+
-|                                         |   GARBAGE    | 0 |  1 | CRC |
+|                                         |   STATUS     | 0 |  2 | CRC |
 |                                         +--------------+--------------+
+|  Die Status-Abfrage war erfolgreich. Der Master fragt die vorliegenden
+|  Daten an
 |  +--------------+--------------+
-|  |     253      | 0 |  2 | CRC |
+|  |       3      | 2  1 | CRC |
 |  +--------------+--------------+
-|                                         +--------------+--------------+
-|  				          |  VALUE       | 0 |  0 | CRC |
-|                                         +--------------+--------------+
+|					MGMT-ACK
+|  +--------------+--------------+
+|  |   address 1  | 1 |  1 | CRC |
+|  +--------------+--------------+
+|					MGMT-ACK
+|  +--------------+--------------+
+|  |   address 2  | 0 |  1 | CRC |
+|  +--------------+--------------+
+|					MGMT-ACK inklusive Daten-Byte
+|	
 |
-|  An dieser Stelle tritt eine Störung des i²C-Bus auf. Die CRC-Berechnung kommt
-|  nach der Übermittlung nicht zum selben Ergebnis. Der Master fragt erneut an.
+|  An dieser Stelle tritt eine Störung des i²C-Bus auf. Die CRC-Berechnung 
+|  kommt nach der Übermittlung master-seitig nicht zum selben Ergebnis. Der
+|  Master fragt erneut an.
 |  +--------------+--------------+
-|  |     253      | 0 |  3 | CRC |
+|  |           1  | 0 |  3 | CRC |
 |  +--------------+--------------+
-|                                         +--------------+--------------+
-|  				          |  VALUE       | 0 |  0 | CRC |
-|                                         +--------------+--------------+
+|					MGMT-ACK inklusive Daten-Byte
 |
-|  Eine erneute Statusabfrage wird genutzt um dem Client den korrekten
-|  Empfang von Daten zu signalisieren. Diesmal liegen keine weiteren Daten vor.
+|  Nach einer erneute Statusabfrage darf der Client das Daten-Byte freigeben.
 |  +--------------+--------------+
-|  |     255      | 0 |  2 | CRC |
+|  |       2      | 0 |  2 | CRC |
 |  +--------------+--------------+
 |                                         +--------------+--------------+
-|  				          |  GARBAGE     | 0 |  0 | CRC |
+|  				          |   STATUS     | 0 |  0 | CRC |
 |                                         +--------------+--------------+
 |
 |
@@ -157,20 +174,13 @@ v
 Ablauf von Kommunikation im Fehlerfall
 ======================================
 
-Kommandos
-=========
-255 Statusabfrage (Beantwortung mit einem Managementpaket)
-254 Reset bewirkt einen Reboot des Clients.
-253 Register lesen (Antwort via Daten-Frame mit je einem Paket für: Kommando)
-252 Register schreiben (per Daten-Frame mit je einem Paket für: Kommando,
-    Registeradresse, Daten-Byte)
-251 Firmware-Update einleiten (2 Pakete)
-250 Firmware-Update Daten schicken (per n Daten-Frames mit 1-9 Paketen)
-249 Fehlercode abholen
+OPCodes
+=======
 
-offene Fragen:
+1 Reset bewirkt einen Reboot des Clients.
+2 Statusabfrage Mit Daten über den Application Status
+3 Register lesen
+4 Register schreiben
+5 Firmware-Update Management (mit Sub-Kommando etc im Frame)
+6 Firmware-Update Daten
 
-* wollen wir Kommandos Gruppieren? Bsp: alle lesenden Kommandos sind in der
-Range 200-230 zu finden. Dann wüsste der Communication Handler bereits, wann
-ein erweitertes Managementframe geschrieben werden muss und ggf auch, wie es
-auszufüllen ist.
