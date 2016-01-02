@@ -10,7 +10,9 @@ drei Schichten:
         | (I²C-Bus + INT-Leitung) |
         +-------------------------+
 
+
 Die Ebene des Communication Handlers definiert sich wie folgt:
+
 Paketarten
 ==========
 
@@ -20,35 +22,41 @@ Datenpakete dienen der Übertragung von Opcodes und Daten und können in
 Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
 8 Bit und hat folgenden Aufbau:
 
-+--------------+--------------+
-| Data         | PC | CS | CRC|
-+--------------+--------------+
++--------------+---------------+
+| Payload      | PC | ST | CRC |
++--------------+---------------+
 
- Data: 8 Bits Payload
- PC:   3 Bits
- CS:   2 Bits
- CRC:  3 Bits
+ Payload: 8 Bits Opcode oder Daten
+ PC:      3 Bits
+ ST:      2 Bits
+ CRC:     3 Bits
 
  * PC ist der Packet Counter im aktuellen Frame. Bei CS=2 wird dieser auf die
    Anzahl der noch folgenden Pakete im Frame gesetzt. Bei jedem Paket im Frame
    wird der PC dekrementiert.
- * CS ist ein Status und ist als Zahl kodiert. Damit ergeben sich die
+ * ST ist ein Status und ist als Zahl kodiert. Damit ergeben sich die
    Zustände:
     0) ACK (alles ist OK)
-    1) Unterscheidung nach Kommunikationsrichtung:
-       a) client-to-server: DATA (es gibt auch nach Abarbeitung des aktuellen 
-          Frames noch weitere Daten)
-       b) server-to-client: RSTART (es handelt sich um einen Re-Transmit
-          eines bereits gesendeten Start-Frames)
-    2) START (leitet einen neuen Frame ein)
+    1) INT (Interrupt ist aktiviert, nur Slave)
+    2) START (leitet einen neuen Frame ein, nur Master)
     3) ERROR (Es kam zu einem Problem bei der Datenübertragung. Anforderung,
 	     der erneuten Übermittlung des Pakets) Der eigentliche
 	     Fehler ist im DATA-Teil des Pakets per ERROR-Status-Byte
 	     beschrieben
- * CRC ist eine 3-bittige Checksumme über die restlichen 13 Bit.
-   
+ * CRC ist eine 3-bittige Checksumme über alle 16 bit, wobei die CRC-Bit bei
+       der Berechnung auf 000 gesetzt werden.
 
-Wenn CS=2 ist, enthält das Daten-Byte ein 8-Bit Command.
+  [Offene Frage:
+      INT und START sind kontextuell getrennt: INT kann nur vom Slave kommen, START
+      nur vom Master.
+
+      Diese beiden könnte man wieder zusammenfassen, dann bleibt ein freier Zustand
+      zur späteren Verwendung.
+
+      Oder (wenn wir das nicht wollen): INT/START und ERROR werden zu Bits.
+  ]
+
+Wenn ST=2 ist, enthält das Daten-Byte ein 8-Bit Command.
  
  
 Aufbau des ERROR-Status-Byte
@@ -61,38 +69,16 @@ Aufbau des ERROR-Status-Byte
 		   Der Master startet die Übertragung des Frames erneut.
 3 - OPCODE-ERROR - Der OPCode wurde nicht erkannt
 
-Struktur eines Frames:
----------------------
 
-          +--------------+----------------+
-Paket 1   | OPCode       | 111 | 10 | CRC |
-          +--------------+----------------+
-Paket 2   | Parameter 1  | 111 | 00 | CRC |
-          +--------------+----------------+
-Paket 3   | Parameter 2  | 110 | 00 | CRC |
-          +--------------+----------------+
-Paket 4   | Parameter 3  | 101 | 00 | CRC |
-          +--------------+----------------+
-Paket 5   | Parameter 4  | 100 | 00 | CRC |
-          +--------------+----------------+
-Paket 6   | Parameter 5  | 011 | 00 | CRC |
-          +--------------+----------------+
-Paket 7   | Parameter 6  | 010 | 00 | CRC |
-          +--------------+----------------+
-Paket 8   | Parameter 7  | 001 | 00 | CRC |
-          +--------------+----------------+
-Paket 9   | Parameter 8  | 000 | 00 | CRC |
-          +--------------+----------------+
 
 Management-Pakete
 =================
 Managementpakete dienen der Steuerung des Protokolls und bestehen aus 2
-Byte. Wird vom Slave ein Datenpaket empfangen, wird mit einem
-Managementpaket geantwortet.
+Byte. Wird Datenpaket empfangen, wird mit einem Managementpaket geantwortet.
 
-+--------------+--------------+
-|  DATA (?)    | PC | CS | CRC|
-+--------------+--------------+
++--------------+---------------+
+|  00000000    | PC | ST | CRC |
++--------------+---------------+
 
 * PC:    3 Bits
 * CS:    2 Bits
@@ -100,15 +86,120 @@ Managementpaket geantwortet.
 
 * PC  ist der Wert des PC des Datenpakets auf den sich dieses Managementpaket
       bezieht
-* CS  ist der als Zahl kodierte Status. Es ergeben sich die selben
+* ST  ist der als Zahl kodierte Status. Es ergeben sich die selben
       Zustände wie bei Datenpaketen.
 * CRC Checksumme des Managementpakets. Es kommt der selbe Algorithmus wie bei
       den Datenpaketen zum Einsatz.
 
-Sofern ein Managementpaket das letzte Paket eines Frames quittiert und
-dieses Frame eine Anfrage zum Senden von Daten (OPCodes 2,3)
-beinhaltet, enthält der DATA-Teil den Wert des zu lesenden Datenbytes.
 
+
+Struktur eines Frames:
+======================
+
+Ein Frame besteht aus drei Teilen:
+  1) Start-Paket mit dem OpCode
+  2) Parameter-Pakete vom Master zum Slave
+  3) Antwort-Pakete vom Slave zum Master
+
+           +--------------+----------------+
+Paket  1   | OPCode       | 111 | 10 | CRC | OpCode    Master -> Slave
+           +--------------+----------------+
+Paket  2   | Parameter 1  | 111 | 00 | CRC | Parameter Master -> Slave
+           +--------------+----------------+
+Paket  3   | Parameter 2  | 110 | 00 | CRC |
+           +--------------+----------------+
+Paket  4   | Parameter 3  | 101 | 00 | CRC |
+           +--------------+----------------+
+Paket  5   | Parameter 4  | 100 | 00 | CRC |
+           +--------------+----------------+
+Paket  6   | Parameter 5  | 011 | 00 | CRC |
+           +--------------+----------------+
+Paket  7   | Parameter 6  | 010 | 00 | CRC |
+           +--------------+----------------+
+Paket  8   | Parameter 7  | 001 | 00 | CRC |
+           +--------------+----------------+
+Paket  9   | Parameter 8  | 000 | 00 | CRC |
+           +--------------+----------------+
+Paket 10   | Antwort 1    | 111 | 00 | CRC | Antwort Master -> Slave
+           +--------------+----------------+
+Paket 11   | Antwort 2    | 110 | 00 | CRC |
+           +--------------+----------------+
+Paket 12   | Antwort 3    | 101 | 00 | CRC |
+           +--------------+----------------+
+Paket 13   | Antwort 4    | 100 | 00 | CRC |
+           +--------------+----------------+
+Paket 14   | Antwort 5    | 011 | 00 | CRC |
+           +--------------+----------------+
+Paket 15   | Antwort 6    | 010 | 00 | CRC |
+           +--------------+----------------+
+Paket 16   | Antwort 7    | 001 | 00 | CRC |
+           +--------------+----------------+
+Paket 17   | Antwort 8    | 000 | 00 | CRC |
+           +--------------+----------------+
+
+  [Offene Frage:
+      Parameter 8 und Antwort 1 können sich technisch überlappen.
+      Allerdings liegt dazwischen auch die Zeit, die der µC zum Ermitteln
+      der Antwort braucht. Zwei Vorgehensweisen:
+      a) Wir fordern, dass diese Antworten sehr schnell verfügbar sein müssen.
+         (D.h. lediglich Speicherwerte auslesen oder Statusregister
+         setzen/zurückgeben.)
+         Das trifft uns aber z.B. schon beim RTC: Die Zeit auszulesen, geht über
+         bit-banged SPI nicht ganz so schnell, wie wir das hier gern hätten.
+      b) Der letzte Parameter wird mit einem Management-Paket beantwortet,
+         in dessen Payload steht, wie lange der Master mindestens warten soll,
+         bis er eine Antwort abholen kann.
+         Der Master kann dann in der Zeit den Bus anders nutzen.
+
+       Wichtig ist hierbei, dass zwischen I2C-Request und I2C-Response der Bus
+       blockiert ist!
+  ]
+
+Die Anzal der Parameter- und Antwort-Pakete kann variieren und wird mit PC
+mitgeteilt. Dabei ist es möglich, keine Parameter zu schicken (PC == 000 im
+Start-Paket) und nur ein Antwort-Paket zu schicken (PC == 000 im ersten
+Antwort-Paket).
+
+Das Ende eines Parameter- oder Antwort-Abschnittes wird dadurch markiert, dass
+PC den Wert 000 erreicht hat.
+
+Auch wenn eigentlich keine Antwort notwendig ist, muss auf jeden Fall der
+ACK-Teil des Pakets vom Slave zum Master gesendet werden. Ggf. wertet die App
+die Payload nicht aus.
+
+
+Die Management-Pakete sind hier nicht dargestellt. Wer das Management-Paket
+sendet, hängt davon ab, welcher Teil des Frames gesendet wird:
+
+Paket-Typ       | Master           | Slave
+----------------+------------------+-----------------
+Start-Paket     | Daten-Paket      | Management-Paket
+Parameter-Paket | Daten-Paket      | Management-Paket
+Antwort-Paket   | Management-Paket | Daten-Paket
+
+
+Das letzte Daten-Paket (vom Slave um Master) wird bei erfolgreicher Übertragung
+nicht mit einem Management-Paket quittiert. Der Slave muss deshalb das letzte
+Daten-Paket so lange vorhalten, bis der Master einen neuen Frame initiiert.
+(D.h. ein Start-Paket senden. Ggf. kann vorher ein Management-Paket mit der
+Resend-Anweisung versendet werden.)
+
+Interrupt-Mitteilung (INT)
+==========================
+
+Über den Interrupt kann ein Slave mitteilen, dass eine Status-Änderung vorliegt,
+die vom Master entgegen genommen werden sollte.
+
+Ein Slave im Interrupt-Status hält die INT-Leitung aktiv und setzt den
+INT-Status in seinen Datenpaketen. Mit Abfrage des Status durch den Master
+wird der Interrupt-Status verlassen.
+
+Der Master kann auf diese Art bei aktiver Interrupt-Leitung der Reihe nach den
+Status der Slaves abfragen und damit feststellen, welcher Slave Statusänderungen
+kommunizieren möchte. Alle weiteren Aktivitäten werden durch die App auf der
+Master-Seite entschieden.
+
+Die Abfrage des Status ist ein Standard-OpCode.
 
 Verhalten
 =========
@@ -116,9 +207,11 @@ Verhalten
 * Jedes Paket wird vom Empfänger anhand der CRC geprüft und mit Hilfe
   eines Management-Pakets quittiert. Der Master reagiert entsprechend
   der Übertragungserfolgsnachricht.
-* Jeder Client muss das Daten-Byte des letzten vom client verschickten
-  Pakets so bereit halten, bis das nächste Paket erfolgreich ausgewertet
-  ist.
+* Das letzte Daten-Paket (vom Slave um Master) wird bei erfolgreicher
+  Übertragung nicht mit einem Management-Paket quittiert. Der Slave muss
+  deshalb das letzte Daten-Paket so lange vorhalten, bis der Master einen neuen
+  Frame initiiert.
+
 
 
 Ablauf von Kommunikation im Regelfall
