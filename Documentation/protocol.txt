@@ -139,7 +139,7 @@ t
 |  Die Status-Abfrage war erfolgreich. Der Master fragt die vorliegenden
 |  Daten an
 |  +--------------+--------------+
-|  |       3      | 2  1 | CRC   |
+|  |       3      | 2 | 1 | CRC  |
 |  +--------------+--------------+
 |					MGMT-ACK
 |  +--------------+--------------+
@@ -149,7 +149,7 @@ t
 |  +--------------+--------------+
 |  |   address 2  | 0 |  1 | CRC |
 |  +--------------+--------------+
-|					MGMT-ACK inklusive Daten-Byte
+|					Start-Frame mit Applikationsdaten
 |	
 |
 |  An dieser Stelle tritt eine Störung des i²C-Bus auf. Die CRC-Berechnung 
@@ -158,7 +158,7 @@ t
 |  +--------------+--------------+
 |  |           1  | 0 |  3 | CRC |
 |  +--------------+--------------+
-|					MGMT-ACK inklusive Daten-Byte
+|					Start-Frame mit Applikationsdaten
 |
 |  Nach einer erneute Statusabfrage darf der Client das Daten-Byte freigeben.
 |  +--------------+--------------+
