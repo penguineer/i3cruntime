@@ -139,7 +139,7 @@ t
 |  Die Status-Abfrage war erfolgreich. Der Master fragt die vorliegenden
 |  Daten an
 |  +--------------+--------------+
-|  |       3      | 2  1 | CRC |
+|  |       3      | 2  1 | CRC   |
 |  +--------------+--------------+
 |					MGMT-ACK
 |  +--------------+--------------+
@@ -183,4 +183,5 @@ OPCodes
 4 Register schreiben
 5 Firmware-Update Management (mit Sub-Kommando etc im Frame)
 6 Firmware-Update Daten
-
+7-15 RESERVIERT
+16-255 Applikationsspezifisch
