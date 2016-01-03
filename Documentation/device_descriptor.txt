@@ -1,0 +1,45 @@
+Device Descriptor
+=================
+
+Der Device Descriptor wird im EEPROM eines I3C-Slaves abgelegt. Er enthält
+neben der zu verwendenden I²C-Adresse weitere Meta-Informationen über den
+Slave, die im Folgenden spezifiziert werden.
+
+Dieses Dokument spezifiziert den Aufbau dieses Device Descriptors.
+
+Hinweis zur AVR-Hardware:
+      Das EEPROM kann in beliebigen Einheiten in Byte-Granularität geschrieben
+      und gelesen werden. Im Gegensatz zum Flash-Speicher gibt es keine
+      Unterteilung in Seiten. Allerdings muss darauf geachtet werden, dass
+      ein möglichst großer Teil des EEPROM für die Applikation zur Verfügung
+      bleiben muss.
+
+Der Device-Descriptor ist 8 Bytes lang und kann damit in einem Antwort-Paket
+gesendet werden. Er liegt am Anfang des EEPROM-Speichers.
+
+Offset + Länge (B) + Beschreibung
+    00 |         1 | EEPROM-Kennnung
+    01 |         1 | I2C-Adresse
+    02 |         5 | Device-Name
+    07 |         1 | Flags + CRC
+
+
+EEPROM-Kennung:
+  Ist eine erste Erkennung, ob ein Device-Descriptor vorliegt. Hier wird auch
+  die Version des Descriptors kodiert.
+
+I2C-Adresse:
+  Die I2C-Adresse des Slaves. Die Ablage im EEPROM macht eine dynamische
+  Konfiguration durch den Master möglich.
+
+Device-Name:
+  Ein beliebig zu vergebener Name für das Device – dient der besseren Erkennung.
+  Es gelten die Ansi-ASCII-Codes.
+  Nicht verwendete Zeichen sind auf Null zu setzen.
+
+Flags + CRC:
+  Die Flags erlauben, weitere Device-Eigenschaften zu setzen.
+  Es folgen drei Bit CRC über den gesamten Descriptor. Der Algorithmus ist
+  derselbe wie für die CRC-Berechnung der Datenpakete. Eine gültige CRC ist
+  weiterer Hinweis auf einen validen Device Descriptor.
+
