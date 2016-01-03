@@ -67,6 +67,8 @@ Aufbau des ERROR-Status-Byte
 2 - FRAME-ERROR  - Der Frame wird aufgrund von Paketverlust verworfen, 
 		   Der Master startet die Übertragung des Frames erneut.
 3 - OPCODE-ERROR - Der OPCode wurde nicht erkannt
+4 - FIFO Overrun - Der Befehlspuffer im Slave ist noch belegt, derzeit können
+                   keine Pakete empfangen werden.
 
 
 
