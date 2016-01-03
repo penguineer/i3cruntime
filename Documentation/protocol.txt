@@ -31,18 +31,17 @@ Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
  ST:      2 Bits
  CRC:     3 Bits
 
- * PC ist der Packet Counter im aktuellen Frame. Bei CS=2 wird dieser auf die
+ * PC ist der Packet Counter im aktuellen Frame. Bei ST=2 wird dieser auf die
    Anzahl der noch folgenden Pakete im Frame gesetzt. Bei jedem Paket im Frame
    wird der PC dekrementiert.
  * ST ist ein Status und ist als Zahl kodiert. Damit ergeben sich die
    Zustände:
     0) ACK (alles ist OK)
     1) INT (Interrupt ist aktiviert, nur Slave)
-    2) START (leitet einen neuen Frame ein, nur Master)
-    3) ERROR (Es kam zu einem Problem bei der Datenübertragung. Anforderung,
-	     der erneuten Übermittlung des Pakets) Der eigentliche
-	     Fehler ist im DATA-Teil des Pakets per ERROR-Status-Byte
-	     beschrieben
+       START (leitet einen neuen Frame ein, nur Master)
+    2) RESERVIERT   
+    3) ERROR (Es kam zu einem Problem bei der Datenübertragung. Das Daten-Byte
+             enthält einen detaillierten Fehlerstatus siehe ERROR-Status-Byte
  * CRC ist eine 3-bittige Checksumme über alle 16 bit, wobei die CRC-Bit bei
        der Berechnung auf 000 gesetzt werden.
 
@@ -53,7 +52,7 @@ Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
       Diese beiden könnte man wieder zusammenfassen, dann bleibt ein freier Zustand
       zur späteren Verwendung.
 
-      Oder (wenn wir das nicht wollen): INT/START und ERROR werden zu Bits.
+      Oder (wenn wir das nicht wollen): INT/START und ERROR werden zu Bits
   ]
 
 Wenn ST=2 ist, enthält das Daten-Byte ein 8-Bit Command.
@@ -81,7 +80,7 @@ Byte. Wird Datenpaket empfangen, wird mit einem Managementpaket geantwortet.
 +--------------+---------------+
 
 * PC:    3 Bits
-* CS:    2 Bits
+* ST:    2 Bits
 * CRC:   3 Bit
 
 * PC  ist der Wert des PC des Datenpakets auf den sich dieses Managementpaket
@@ -91,15 +90,13 @@ Byte. Wird Datenpaket empfangen, wird mit einem Managementpaket geantwortet.
 * CRC Checksumme des Managementpakets. Es kommt der selbe Algorithmus wie bei
       den Datenpaketen zum Einsatz.
 
-
-
 Struktur eines Frames:
 ======================
 
 Ein Frame besteht aus drei Teilen:
   1) Start-Paket mit dem OpCode
-  2) Parameter-Pakete vom Master zum Slave
-  3) Antwort-Pakete vom Slave zum Master
+  2) 1-8 Parameter-Pakete vom Master zum Slave
+  3) 1-8 Antwort-Pakete vom Slave zum Master
 
            +--------------+----------------+
 Paket  1   | OPCode       | 111 | 10 | CRC | OpCode    Master -> Slave
@@ -155,7 +152,7 @@ Paket 17   | Antwort 8    | 000 | 00 | CRC |
        blockiert ist!
   ]
 
-Die Anzal der Parameter- und Antwort-Pakete kann variieren und wird mit PC
+Die Anzahl der Parameter- und Antwort-Pakete kann variieren und wird mit PC
 mitgeteilt. Dabei ist es möglich, keine Parameter zu schicken (PC == 000 im
 Start-Paket) und nur ein Antwort-Paket zu schicken (PC == 000 im ersten
 Antwort-Paket).
@@ -178,11 +175,12 @@ Parameter-Paket | Daten-Paket      | Management-Paket
 Antwort-Paket   | Management-Paket | Daten-Paket
 
 
-Das letzte Daten-Paket (vom Slave um Master) wird bei erfolgreicher Übertragung
-nicht mit einem Management-Paket quittiert. Der Slave muss deshalb das letzte
-Daten-Paket so lange vorhalten, bis der Master einen neuen Frame initiiert.
-(D.h. ein Start-Paket senden. Ggf. kann vorher ein Management-Paket mit der
-Resend-Anweisung versendet werden.)
+Das letzte Daten-Paket (vom Slave um Master) wird bei erfolgreicher
+Übertragung nicht mit einem Management-Paket quittiert. Der Slave muss
+deshalb das letzte Daten-Paket so lange vorhalten, bis der Master einen
+neuen Frame an diesen Slave initiiert. (D.h. ein Start-Paket senden.
+Ggf. kann vorher ein Management-Paket mit der Resend-Anweisung versendet
+werden.)
 
 Interrupt-Mitteilung (INT)
 ==========================
@@ -227,22 +225,28 @@ t
 |  |       2      | 0 |  1 | CRC |
 |  +--------------+--------------+
 |                                         +--------------+--------------+
-|                                         |   STATUS     | 0 |  2 | CRC |
+|                                         |   STATUS     | 0 |  1 | CRC |
 |                                         +--------------+--------------+
 |  Die Status-Abfrage war erfolgreich. Der Master fragt die vorliegenden
 |  Daten an
 |  +--------------+--------------+
-|  |       3      | 2 | 1 | CRC  |
+|  |      17      | 2 | 1 | CRC  |
 |  +--------------+--------------+
-|					MGMT-ACK
+|                                         +--------------+--------------+
+|                                         |   00000000   | 2 |  0 | CRC |
+|                                         +--------------+--------------+
 |  +--------------+--------------+
-|  |   address 1  | 1 |  1 | CRC |
+|  | parameter 1  | 1 |  1 | CRC |
 |  +--------------+--------------+
-|					MGMT-ACK
+|                                         +--------------+--------------+
+|                                         |   00000000   | 1 |  0 | CRC |
+|                                         +--------------+--------------+
 |  +--------------+--------------+
-|  |   address 2  | 0 |  1 | CRC |
+|  | parameter 2  | 0 |  1 | CRC |
 |  +--------------+--------------+
-|					Start-Frame mit Applikationsdaten
+|                                         +--------------+--------------+
+|                                         |   00000000   | 0 |  0 | CRC |
+|                                         +--------------+--------------+
 |	
 |
 |  An dieser Stelle tritt eine Störung des i²C-Bus auf. Die CRC-Berechnung 
@@ -251,9 +255,70 @@ t
 |  +--------------+--------------+
 |  |           1  | 0 |  3 | CRC |
 |  +--------------+--------------+
-|					Start-Frame mit Applikationsdaten
-|
-|  Nach einer erneute Statusabfrage darf der Client das Daten-Byte freigeben.
+|                                         +--------------+--------------+
+|                                         |   00000000   | 0 |  0 | CRC |
+|                                         +--------------+--------------+
+|   An dieser Stelle ist das Kommando an den Slave übertragen. Der
+|   Server initiiert den Antwort-Teil des Frames.
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 7 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 6 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 5 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 4 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 3 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 2 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 1 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|  An dieser Stelle tritt ein Fehler der CRC-Prüfung slave-seitig auf. Der
+|  Slave kommuniziert das per ERROR-Byte, der Master überträgt erneut,
+|  Kommunikation geht weiter.
+|                                         +--------------+--------------+
+|                                         |      1       | 3 |  0 | CRC |
+|                                         +--------------+--------------+
+|  +--------------+--------------+
+|  |   00000000   | 0 |  0 | CRC |
+|  +--------------+--------------+
+|                                         +--------------+--------------+
+|                                         |  DATADATA    | 0 |  0 | CRC |
+|                                         +--------------+--------------+
+|  Nach einer erneute Statusabfrage oder nach einem neuen Start-Paket 
+|  darf der Client das Daten-Byte freigeben.
 |  +--------------+--------------+
 |  |       2      | 0 |  2 | CRC |
 |  +--------------+--------------+
