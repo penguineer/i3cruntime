@@ -358,11 +358,11 @@ Ablauf von Kommunikation im Fehlerfall
 OPCodes
 =======
 
-1 Reset bewirkt einen Reboot des Clients.
-2 Statusabfrage Mit Daten über den Application Status
-3 Register lesen
-4 Register schreiben
-5 Firmware-Update Management (mit Sub-Kommando etc im Frame)
-6 Firmware-Update Daten
-7-15 RESERVIERT
+1     Reset bewirkt einen Reboot des Clients.
+2     Statusabfrage Mit Daten über den Application Status
+3     Register lesen
+4     Register schreiben
+5     Firmware-Update Management (mit Sub-Kommando etc im Frame)
+6     Firmware-Update Daten
+7-15  RESERVIERT
 16-31 Applikationsspezifisch
