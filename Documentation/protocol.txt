@@ -26,7 +26,7 @@ Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
 | Payload      | PC | ST | CRC |
 +--------------+---------------+
 
- Payload: 8 Bits Opcode oder Daten
+ Payload: 8 Bits Opcode+CRC oder Daten
  PC:      3 Bits
  ST:      2 Bits
  CRC:     3 Bits
@@ -56,7 +56,7 @@ Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
   ]
 
 Wenn ST=2 ist, enthält das Daten-Byte ein 8-Bit Command.
- 
+
  
 Aufbau des ERROR-Status-Byte
 ----------------------------
@@ -69,6 +69,27 @@ Aufbau des ERROR-Status-Byte
 3 - OPCODE-ERROR - Der OPCode wurde nicht erkannt
 4 - FIFO Overrun - Der Befehlspuffer im Slave ist noch belegt, derzeit können
                    keine Pakete empfangen werden.
+5 - Address Mismatch - Adress-CRC passt nicht zur Slave-Adresse
+
+Aufbau der Frame-Start-Pakete
+-----------------------------------------
+
++-----------------+---------------+
+| OpCode Addr-CRC | PC | ST | CRC |
++-----------------+---------------+
+
+OpCode:  5 bit OpCode (siehe unten)
+Addr-CRC:3 bit CRC über die Slave-Adresse nach Padding
+
+        Addr-CRC wird über folgende 16 Bit berechnet:
+
+              +-------------+-----------+
+              | I2C address | 00000 CRC |
+              +-------------+-----------+
+
+              CRC ist 000 bei der Berechnung im Master und kann im Slave auf die
+              übermittelte Adress-CRC gesetzt werden, um die Validität der
+              Frame-Adresse zu bestätigen.
 
 
 
@@ -344,4 +365,4 @@ OPCodes
 5 Firmware-Update Management (mit Sub-Kommando etc im Frame)
 6 Firmware-Update Daten
 7-15 RESERVIERT
-16-255 Applikationsspezifisch
+16-31 Applikationsspezifisch
