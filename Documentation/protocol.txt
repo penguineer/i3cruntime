@@ -13,11 +13,9 @@ drei Schichten:
 
 Die Ebene des Communication Handlers definiert sich wie folgt:
 
-Paketarten
+Datenpakete
 ==========
 
-Datenpakete
------------
 Datenpakete dienen der Übertragung von Opcodes und Daten und können in
 Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
 8 Bit und hat folgenden Aufbau:
@@ -27,35 +25,34 @@ Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
 +--------------+---------------+
 
  Payload: 8 Bits Opcode oder Daten
- PC:      3 Bits
+ PC:      1 Bit
  ST:      2 Bits
- CRC:     3 Bits
+ CRC:     5 Bits
 
- * PC ist der Packet Counter im aktuellen Frame. Bei ST=2 wird dieser auf die
-   Anzahl der noch folgenden Pakete im Frame gesetzt. Bei jedem Paket im Frame
-   wird der PC dekrementiert.
+ * PC ist ein Packet Counter im aktuellen Frame, der bei jedem Paket
+   negiert wird.
+   Er beinhaltet initial den Wert '0', wenn es keine Parameter-Pakete gibt,
+   ansonsten den Wert '1'.
  * ST ist ein Status und ist als Zahl kodiert. Damit ergeben sich die
    Zustände:
     0) ACK (alles ist OK)
-    1) INT (Interrupt ist aktiviert, nur Slave)
-       START (leitet einen neuen Frame ein, nur Master)
-    2) RESERVIERT   
+    1) START (nur Master)
+	leitet einen neuen Frame ein
+    2) FIN (Master und Slave)
+        Wird gesetzt, wenn die Parameter (vom Master zum Slave) oder die
+        Antwort (vom Slave zum Master) vollständig gesetzt ist.
     3) ERROR (Es kam zu einem Problem bei der Datenübertragung. Das Daten-Byte
              enthält einen detaillierten Fehlerstatus siehe ERROR-Status-Byte
- * CRC ist eine 3-bittige Checksumme über alle 16 bit, wobei die CRC-Bit bei
-       der Berechnung auf 000 gesetzt werden.
+ * CRC ist eine 5-bittige Checksumme über 24 bit, wobei die CRC-Bit bei
+       der Berechnung auf 000 gesetzt werden. Die 24 Bit bestehen aus:
 
-  [Offene Frage:
-      INT und START sind kontextuell getrennt: INT kann nur vom Slave kommen, START
-      nur vom Master.
+	der 7-bit-I2C-Adresse mit angehängter '0' als Padding
+	der Payload
+	dem Header
 
-      Diese beiden könnte man wieder zusammenfassen, dann bleibt ein freier Zustand
-      zur späteren Verwendung.
+       Das Generatorpolynom ist 0x12 gemäß http://users.ece.cmu.edu/~koopman/crc/.
 
-      Oder (wenn wir das nicht wollen): INT/START und ERROR werden zu Bits
-  ]
-
-Wenn ST=2 ist, enthält das Daten-Byte ein 8-Bit Command.
+Wenn ST=1 ist, enthält das Daten-Byte ein 8-Bit Command.
  
  
 Aufbau des ERROR-Status-Byte
@@ -71,27 +68,6 @@ Aufbau des ERROR-Status-Byte
                    keine Pakete empfangen werden.
 
 
-
-Management-Pakete
-=================
-Managementpakete dienen der Steuerung des Protokolls und bestehen aus 2
-Byte. Wird Datenpaket empfangen, wird mit einem Managementpaket geantwortet.
-
-+--------------+---------------+
-|  00000000    | PC | ST | CRC |
-+--------------+---------------+
-
-* PC:    3 Bits
-* ST:    2 Bits
-* CRC:   3 Bit
-
-* PC  ist der Wert des PC des Datenpakets auf den sich dieses Managementpaket
-      bezieht
-* ST  ist der als Zahl kodierte Status. Es ergeben sich die selben
-      Zustände wie bei Datenpaketen.
-* CRC Checksumme des Managementpakets. Es kommt der selbe Algorithmus wie bei
-      den Datenpaketen zum Einsatz.
-
 Struktur eines Frames:
 ======================
 
@@ -100,81 +76,50 @@ Ein Frame besteht aus drei Teilen:
   2) 1-8 Parameter-Pakete vom Master zum Slave
   3) 1-8 Antwort-Pakete vom Slave zum Master
 
-           +--------------+----------------+
-Paket  1   | OPCode       | 111 | 10 | CRC | OpCode    Master -> Slave
-           +--------------+----------------+
-Paket  2   | Parameter 1  | 111 | 00 | CRC | Parameter Master -> Slave
-           +--------------+----------------+
-Paket  3   | Parameter 2  | 110 | 00 | CRC |
-           +--------------+----------------+
-Paket  4   | Parameter 3  | 101 | 00 | CRC |
-           +--------------+----------------+
-Paket  5   | Parameter 4  | 100 | 00 | CRC |
-           +--------------+----------------+
-Paket  6   | Parameter 5  | 011 | 00 | CRC |
-           +--------------+----------------+
-Paket  7   | Parameter 6  | 010 | 00 | CRC |
-           +--------------+----------------+
-Paket  8   | Parameter 7  | 001 | 00 | CRC |
-           +--------------+----------------+
-Paket  9   | Parameter 8  | 000 | 00 | CRC |
-           +--------------+----------------+
-Paket 10   | Antwort 1    | 111 | 00 | CRC | Antwort Master -> Slave
-           +--------------+----------------+
-Paket 11   | Antwort 2    | 110 | 00 | CRC |
-           +--------------+----------------+
-Paket 12   | Antwort 3    | 101 | 00 | CRC |
-           +--------------+----------------+
-Paket 13   | Antwort 4    | 100 | 00 | CRC |
-           +--------------+----------------+
-Paket 14   | Antwort 5    | 011 | 00 | CRC |
-           +--------------+----------------+
-Paket 15   | Antwort 6    | 010 | 00 | CRC |
-           +--------------+----------------+
-Paket 16   | Antwort 7    | 001 | 00 | CRC |
-           +--------------+----------------+
-Paket 17   | Antwort 8    | 000 | 00 | CRC |
-           +--------------+----------------+
+           +--------------+--------------+
+Paket  1   | OPCode       | 1 | 01 | CRC | OpCode    Master -> Slave
+           +--------------+--------------+
+Paket  2   | Parameter 1  | 0 | 00 | CRC | Parameter Master -> Slave
+           +--------------+--------------+
+Paket  3   | Parameter 2  | 1 | 00 | CRC |
+           +--------------+--------------+
+Paket  4   | Parameter 3  | 0 | 00 | CRC |
+           +--------------+--------------+
+Paket  5   | Parameter 4  | 1 | 00 | CRC |
+           +--------------+--------------+
+Paket  6   | Parameter 5  | 0 | 00 | CRC |
+           +--------------+--------------+
+Paket  7   | Parameter 6  | 1 | 00 | CRC |
+           +--------------+--------------+
+Paket  8   | Parameter 7  | 0 | 00 | CRC |
+           +--------------+--------------+
+Paket  9   | Parameter 8  | 1 | 10 | CRC |
+           +--------------+--------------+
+Paket 10   | Antwort 1    | 0 | 00 | CRC | Antwort Master -> Slave
+           +--------------+--------------+
+Paket 11   | Antwort 2    | 1 | 00 | CRC |
+           +--------------+--------------+
+Paket 12   | Antwort 3    | 0 | 00 | CRC |
+           +--------------+--------------+
+Paket 13   | Antwort 4    | 1 | 00 | CRC |
+           +--------------+--------------+
+Paket 14   | Antwort 5    | 0 | 00 | CRC |
+           +--------------+--------------+
+Paket 15   | Antwort 6    | 1 | 00 | CRC |
+           +--------------+--------------+
+Paket 16   | Antwort 7    | 0 | 00 | CRC |
+           +--------------+--------------+
+Paket 17   | Antwort 8    | 1 | 10 | CRC |
+           +--------------+--------------+
 
-  [Offene Frage:
-      Parameter 8 und Antwort 1 können sich technisch überlappen.
-      Allerdings liegt dazwischen auch die Zeit, die der µC zum Ermitteln
-      der Antwort braucht. Zwei Vorgehensweisen:
-      a) Wir fordern, dass diese Antworten sehr schnell verfügbar sein müssen.
-         (D.h. lediglich Speicherwerte auslesen oder Statusregister
-         setzen/zurückgeben.)
-         Das trifft uns aber z.B. schon beim RTC: Die Zeit auszulesen, geht über
-         bit-banged SPI nicht ganz so schnell, wie wir das hier gern hätten.
-      b) Der letzte Parameter wird mit einem Management-Paket beantwortet,
-         in dessen Payload steht, wie lange der Master mindestens warten soll,
-         bis er eine Antwort abholen kann.
-         Der Master kann dann in der Zeit den Bus anders nutzen.
-
-       Wichtig ist hierbei, dass zwischen I2C-Request und I2C-Response der Bus
-       blockiert ist!
-  ]
-
-Die Anzahl der Parameter- und Antwort-Pakete kann variieren und wird mit PC
-mitgeteilt. Dabei ist es möglich, keine Parameter zu schicken (PC == 000 im
-Start-Paket) und nur ein Antwort-Paket zu schicken (PC == 000 im ersten
-Antwort-Paket).
-
-Das Ende eines Parameter- oder Antwort-Abschnittes wird dadurch markiert, dass
-PC den Wert 000 erreicht hat.
+Die Anzahl der Parameter- und Antwort-Pakete kann variieren. Das letzte Paket
+wird jeweils mit dem FIN-Status markiert. Dabei ist es möglich, keine Parameter
+zu schicken (PC='0' im Start-Paket) und nur ein Antwort-Paket zu schicken
+(ST == 2 im ersten Antwort-Paket).
 
 Auch wenn eigentlich keine Antwort notwendig ist, muss auf jeden Fall der
 ACK-Teil des Pakets vom Slave zum Master gesendet werden. Ggf. wertet die App
 die Payload nicht aus.
-
-
-Die Management-Pakete sind hier nicht dargestellt. Wer das Management-Paket
-sendet, hängt davon ab, welcher Teil des Frames gesendet wird:
-
-Paket-Typ       | Master           | Slave
-----------------+------------------+-----------------
-Start-Paket     | Daten-Paket      | Management-Paket
-Parameter-Paket | Daten-Paket      | Management-Paket
-Antwort-Paket   | Management-Paket | Daten-Paket
 
 
 Das letzte Daten-Paket (vom Slave um Master) wird bei erfolgreicher
@@ -183,6 +128,7 @@ deshalb das letzte Daten-Paket so lange vorhalten, bis der Master einen
 neuen Frame an diesen Slave initiiert. (D.h. ein Start-Paket senden.
 Ggf. kann vorher ein Management-Paket mit der Resend-Anweisung versendet
 werden.)
+
 
 Interrupt-Mitteilung (INT)
 ==========================
@@ -211,13 +157,16 @@ Verhalten
   Übertragung nicht mit einem Management-Paket quittiert. Der Slave muss
   deshalb das letzte Daten-Paket so lange vorhalten, bis der Master einen neuen
   Frame initiiert.
+* Frames werden auf dem Bus nicht fragmentiert, d.h. in der Zeit zwischen
+  Anfrage vom Master und Antwort vom Slave kann der Bus nicht benutzt werden.
+  Antworten müssen deshalb so schnell wie möglich gesendet werden.
 
-
-
-Ablauf von Kommunikation im Regelfall
-=====================================
+Ablauf der Kommunikation
+========================
 Darstellung der Kommunikation zur Statusabfrage mit anschließendem Lesen von
 Daten.
+
+[TODO: Packet Counter und Status anpassen]
 
 t
 |  Master                                Client
@@ -330,9 +279,6 @@ t
 |
 |
 v
-
-Ablauf von Kommunikation im Fehlerfall
-======================================
 
 OPCodes
 =======
