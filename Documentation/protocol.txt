@@ -71,6 +71,10 @@ Aufbau des ERROR-Byte
 3 - OPCODE-ERROR - Der OPCode wurde nicht erkannt
 4 - FIFO Overrun - Der Befehlspuffer im Slave ist noch belegt, derzeit können
                    keine Pakete empfangen werden.
+5 - NO PACKET    - (Antwort auf 2) Es liegt kein Paket zum Re-Send vor.
+		   Dieser Fehler tritt auf, wenn der Slave einen Reset
+		   durchgeführt hat und der Master die letzte Antwort nochmals
+		   anfordert.
 
 Aufbau des Status-Byte
 ---------------------
