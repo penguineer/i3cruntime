@@ -24,35 +24,40 @@ Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
 | Payload      | PC | ST | CRC |
 +--------------+---------------+
 
- Payload: 8 Bits Opcode oder Daten
- PC:      1 Bit
- ST:      2 Bits
- CRC:     5 Bits
+  Payload	8 bits
+	Opcode, Fehlerstatus oder Daten
 
- * PC ist ein Packet Counter im aktuellen Frame, der bei jedem Paket
-   negiert wird.
-   Er beinhaltet initial den Wert '0', wenn es keine Parameter-Pakete gibt,
-   ansonsten den Wert '1'.
- * ST ist ein Status und ist als Zahl kodiert. Damit ergeben sich die
-   Zustände:
-    0) ACK (alles ist OK)
-    1) START (nur Master)
-	leitet einen neuen Frame ein
-    2) FIN (Master und Slave)
-        Wird gesetzt, wenn die Parameter (vom Master zum Slave) oder die
-        Antwort (vom Slave zum Master) vollständig gesetzt ist.
-    3) ERROR (Es kam zu einem Problem bei der Datenübertragung. Das Daten-Byte
-             enthält einen detaillierten Fehlerstatus siehe ERROR-Status-Byte
- * CRC ist eine 5-bittige Checksumme über 24 bit, wobei die CRC-Bit bei
-       der Berechnung auf 000 gesetzt werden. Die 24 Bit bestehen aus:
+  PC		1 bit
+	PC ist ein Packet Counter im aktuellen Frame, der bei jedem Paket
+	negiert wird. Der Initialwert ist
+	  0: wenn es im Frame keine Parameter-Pakete gibt
+	  1: wenn im Frame Parameter-Pakete übertragen werden
 
-	der 7-bit-I2C-Adresse mit angehängter '0' als Padding
-	der Payload
-	dem Header
+  ST		2 bits
+	Als Zahl kodierter Status, einer der folgenden:
 
-       Das Generatorpolynom ist 0x12 gemäß http://users.ece.cmu.edu/~koopman/crc/.
+	0) ACK
+	      Es sind keine Fehler aufgetreten.
+	1) START (nur Master)
+	      Das Paket mit diesem Status leitet einen neuen Frame ein.
+	      Die Payload enthält den OpCode.
+	2) FIN
+	      Wird gesetzt, wenn die Parameter (vom Master zum Slave) oder die
+	      Antwort (vom Slave zum Master) vollständig gesetzt sind.
+	3) ERROR
+	      Es kam zu einem Problem bei der Datenübertragung.
+	      Die Payload enthält einen detaillierten Fehlerstatus
+	      (siehe ERROR-Byte).
 
-Wenn ST=1 ist, enthält das Daten-Byte ein 8-Bit Command.
+  CRC		5 bits
+	Eine 5-bittige Checksumme über 24 bit, wobei die CRC-Bit bei
+        der Berechnung auf 000 gesetzt werden. Die 24 Bit bestehen aus:
+	  - der 7-bit-I2C-Adresse mit angehängter '0' als Padding
+	  - der Payload
+	  - dem Header
+
+	Das Generatorpolynom ist 0x12 (0x25) gemäß
+	http://users.ece.cmu.edu/~koopman/crc/.
  
  
 Aufbau des ERROR-Byte
@@ -299,12 +304,11 @@ v
 
 OPCodes
 =======
-
-1 Reset bewirkt einen Reboot des Clients.
-2 Statusabfrage Mit Daten über den Application Status
-3 Register lesen
-4 Register schreiben
-5 Firmware-Update Management (mit Sub-Kommando etc im Frame)
-6 Firmware-Update Daten
-7-15 RESERVIERT
-16-255 Applikationsspezifisch
+ 1     Reset bewirkt einen Reboot des Clients.
+ 2     Statusabfrage Mit Daten über den Application Status
+ 3     Register lesen
+ 4     Register schreiben
+ 5     Firmware-Update Management (mit Sub-Kommando etc im Frame)
+ 6     Firmware-Update Daten
+ 7-15  RESERVIERT
+ 16-255 Applikationsspezifisch
