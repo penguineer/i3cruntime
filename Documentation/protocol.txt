@@ -55,8 +55,8 @@ Frames zusammengefasst werden. Ein Datenpaket besteht aus 2 Bytes zu je
 Wenn ST=1 ist, enthält das Daten-Byte ein 8-Bit Command.
  
  
-Aufbau des ERROR-Status-Byte
-----------------------------
+Aufbau des ERROR-Byte
+---------------------
 
 0 - Abort        - Abbruch der Kommunikation, Verwerfen des aktuellen
                    Frames
@@ -66,6 +66,14 @@ Aufbau des ERROR-Status-Byte
 3 - OPCODE-ERROR - Der OPCode wurde nicht erkannt
 4 - FIFO Overrun - Der Befehlspuffer im Slave ist noch belegt, derzeit können
                    keine Pakete empfangen werden.
+
+Aufbau des Status-Byte
+---------------------
+
+0 - ACK		- alles ist ok
+1 - DATA	- es liegen weitere Daten vor
+2 - BACKOFF	- Slave ist belegt, derzeit können keine Pakete
+                  empfangen oder verarbeitet werden
 
 
 Struktur eines Frames:
