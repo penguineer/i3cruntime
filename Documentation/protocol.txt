@@ -76,13 +76,44 @@ Aufbau des ERROR-Byte
 		   durchgeführt hat und der Master die letzte Antwort nochmals
 		   anfordert.
 
-Aufbau des Status-Byte
----------------------
+Aufbau des Status-Bytes
+-----------------------
 
-0 - ACK		- alles ist ok
-1 - DATA	- es liegen weitere Daten vor
-2 - BACKOFF	- Slave ist belegt, derzeit können keine Pakete
-                  empfangen oder verarbeitet werden
+Das Status-Byte wird als Antwort auf Status-Anfragen gesendet. Es enthält drei
+festgelegte Bits, die im folgenden Erläutert werden. Die verbleibenden 5 Bits
+können applikationsspezifisch belegt werden.
+
+  +-----------------+
+  | INT | RST | App |
+  +-----------------+
+
+
+  INT (1 bit)	Interrupt-Status
+	Ist gesetzt, wenn weitere Daten/Ereignisse anliegen, d.h. wenn es
+	Anfragen gibt, die bislang unbekannte Ergebnisse zurückliefern würden.
+	Die Entscheidung, ob der INT-Status aktiv ist, wird auch von der
+	Applikation beeinflusst.
+  RST (2 bits)	Reset-Status
+	Diese Bits geben an, ob der µC seit der letzten Abfrage einen Reset
+	durchlaufen hat. Die Ursache wird wie folgt kodiert:
+	  00) Normalbetrieb
+	  01) Reset (extern über den RESET-Pin oder per Power-On)
+	  10) Software-Reset
+	  11) Watchdog-Reset
+	Wenn der Reset-Status sich auf einen Wert verschieden von 00 ändert,
+	wird auch der INT-Status aktiviert. Der Reset-Status wird nach der
+	ersten Status-Abfrage zurückgesetzt.
+
+
+Der INT-Status ist nicht identisch mit der INT-Leitung. Da diese von allen
+Bus-Teilnehmern geteilt wird, sollte sie auch so schnell wie möglich freigegeben
+werden. Der Slave aktiviert die INT-Leitung, wenn der INT-Status gesetzt wird.
+Sobald die erste Statusabfrage beantwortet wurde, wird die INT-Leitung
+freigegeben, auch wenn der INT-Status noch gesetzt ist. Solange der INT-Status
+gesetzt ist, sollte der Master entsprechend Daten abfragen - das ist
+applikationsspezifisch. Wenn keine neuen Daten mehr vorhanden sind, wird der
+INT-Status zurückgesetzt. Dann führt eine erneute Aktivierung des INT-Status
+auch zu einer Aktivierung der INT-Leitung.
 
 
 Struktur eines Frames:
@@ -309,13 +340,13 @@ v
 OPCodes
 =======
  1     Reset bewirkt einen Reboot des Clients.
- 2     Statusabfrage Mit Daten über den Application Status
+ 2     Statusabfrage (siehe Abschnitt "Statusbyte")
  3     Register lesen
  4     Register schreiben
  5     Firmware-Update Management (mit Sub-Kommando etc im Frame)
  6     Firmware-Update Daten
  7     Device-Descriptor auslesen
  8     I2C-Adresse setzen
- 9     Device-Descriptor (außer I2C-Adresse) setze
+ 9     Device-Descriptor (außer I2C-Adresse) setzen
  10-15  RESERVIERT
  16-255 Applikationsspezifisch
