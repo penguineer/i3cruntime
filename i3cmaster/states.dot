@@ -1,0 +1,5 @@
+digraph i3cmaster{
+	idle -> INT -> "poll slaves" -> "fetch data" -> idle;
+	idle -> "find all addresses" -> idle;
+	idle -> "send command" -> idle;
+}
