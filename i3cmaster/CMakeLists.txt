@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.9)
 
-project (CRC)
+project (I3CMASTER)
 
 set(CMAKE_C_FLAGS "-std=c99")
 
