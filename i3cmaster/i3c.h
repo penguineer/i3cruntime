@@ -147,22 +147,60 @@ enum resetstatus {
 };
 
 enum opcode {
-	OP_RESET = 0,
-	OP_STATUS = 1,
-	OP_READ_REGISTER = 2,
-	OP_WRITE_REGISTER =3,
-	OP_FIRMWARE_MGMT = 4,
-	OP_FIRMWARE_DATA = 5,
-	OP_RESERVED1 = 6,
-	OP_RESERVED2 = 7,
-	OP_RESERVED3 = 8,
-	OP_RESERVED4 = 9,
-	OP_RESERVED5 = 10,
-	OP_RESERVED6 = 11,
-	OP_RESERVED7 = 12,
-	OP_RESERVED8 = 13,
-	OP_RESERVED9 = 14,
-	OP_RESERVED0 = 15,
+	/*
+	 * Reset bewirkt einen Reboot des Clients.
+	 */
+	OP_RESET = 1,
+
+	/*
+	 * Statusabfrage (siehe Abschnitt "Statusbyte")
+	 */
+	OP_STATUS = 2,
+
+	/*
+	 * Register lesen
+	 */
+	OP_REGISTER_READ = 3,
+
+	/*
+	 * Register schreiben
+	 */
+	OP_REGISTER_WRITE = 4,
+
+	/*
+	 * Firmware-Update Management (mit Sub-Kommando etc im Frame)
+	 */
+	OP_FIRMWARE_MGMT = 5,
+
+	/*
+	 * Firmware-Update Daten
+	 */
+	OP_FIRMWARE_DATA = 6,
+
+	/*
+	 * Device-Descriptor auslesen
+	 */
+	OP_DEVICEDESCRIPTOR_READ = 7,
+
+	/*
+	 * I2C-Adresse setzen
+	 */
+	OP_DEVICEDESCRIPTOR_I2CSET = 8,
+
+	/*
+	 * Device-Descriptor (auﬂer I2C-Adresse) setzen
+	 */
+	OP_DEVICEDESCRIPTOR_WRITE = 9,
+
+	/*
+         * OpCodes 10 throuth 15 are reserved for protocol use.
+	 * Application OpCodes must not be added here, but registered by the
+	 * application.
+	 */
+
+	/*
+	 * OpCodes 16 through 255 are application specific.
+	 */
 };
 
 /*
