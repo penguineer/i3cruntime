@@ -2,12 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
-struct slave {
-	uint8_t address[255];
-};
-
-
 enum packet_state {
 	/*
 	 * Es sind keine Fehler aufgetreten.
@@ -39,26 +33,6 @@ enum packet_state {
 	 * the protocol structure!
 	 */
 };
-
-enum packetcounter {
-	EVEN = 0, 
-	ODD = 1
-};
-
-struct packet  {
-	uint8_t data;
-	enum packet_state status;
-	enum packetcounter pc;
-	uint8_t crc;
-	uint8_t adr;
-	uint8_t destination;
-} ;
-
-struct frame {
-	// amount of packets inside frame
-	int length;
-	struct packet *packets;
-} ;
 
 /*
  * Error status codes if ST states ERROR.
@@ -202,6 +176,31 @@ enum opcode {
 	 * OpCodes 16 through 255 are application specific.
 	 */
 };
+
+
+struct slave {
+	uint8_t address[255];
+};
+
+enum packetcounter {
+	EVEN = 0,
+	ODD = 1
+};
+
+struct packet  {
+	uint8_t data;
+	enum packet_state status;
+	enum packetcounter pc;
+	uint8_t crc;
+	uint8_t adr;
+	uint8_t destination;
+} ;
+
+struct frame {
+	// amount of packets inside frame
+	int length;
+	struct packet *packets;
+} ;
 
 /*
    1	0001
