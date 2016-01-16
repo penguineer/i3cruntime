@@ -7,12 +7,39 @@ struct slave {
 	uint8_t address[255];
 };
 
-enum status { 
-	ACK = 0,
-	START = 1,
-	FIN = 2,
-	ERROR = 3
+
+enum packet_state {
+	/*
+	 * Es sind keine Fehler aufgetreten.
+	 */
+	ST_ACK = 0,
+
+	/* (master only)
+	 * Das Paket mit diesem Status leitet einen neuen Frame ein.
+	 * Die Payload enthält den OpCode.
+	 */
+	ST_START = 1,
+
+	/*
+	 * Wird gesetzt, wenn die Parameter (vom Master zum Slave) oder die
+	 * Antwort (vom Slave zum Master) vollständig gesetzt sind.
+	 */
+	ST_FIN = 2,
+
+	/*
+	 * Es kam zu einem Problem bei der Datenübertragung.
+	 * Die Payload enthält einen detaillierten Fehlerstatus
+	 * (siehe ERROR-Byte bzw. enum error).
+	 */
+	ST_ERROR = 3
+
+	/*
+	 * Packet state is coded by four bits in the packet header,
+	 * there cannot be any additions to this enum without changing
+	 * the protocol structure!
+	 */
 };
+
 enum packetcounter {
 	EVEN = 0, 
 	ODD = 1
@@ -20,7 +47,7 @@ enum packetcounter {
 
 struct packet  {
 	uint8_t data;
-	enum status status;	
+	enum packet_state status;
 	enum packetcounter pc;
 	uint8_t crc;
 	uint8_t adr;

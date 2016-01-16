@@ -22,7 +22,7 @@ uint8_t crc(uint8_t data, uint8_t meta) {
 	return 0x0b;
 }
 
-struct packet create_packet(uint8_t data, uint8_t destination, enum packetcounter pc, enum status st)
+struct packet create_packet(uint8_t data, uint8_t destination, enum packetcounter pc, enum packet_state st)
 {
 	struct packet p;
 	p.data=data;
