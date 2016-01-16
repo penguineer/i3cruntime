@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum packet_state {
+enum i3c_packet_state {
 	/*
 	 * Es sind keine Fehler aufgetreten.
 	 */
@@ -38,7 +38,7 @@ enum packet_state {
 /*
  * Error status codes if ST states ERROR.
  */
-enum error {
+enum i3c_error {
 	/* Abort
 	 *
 	 * Abbruch der Kommunikation, Verwerfen des aktuellen Frames
@@ -93,7 +93,7 @@ enum error {
  * wird auch der INT-Status aktiviert. Der Reset-Status wird nach der
  * ersten Status-Abfrage zurückgesetzt.
  */
-enum resetstatus {
+enum i3c_resetstatus {
         /*
 	 * Normalbetrieb
 	 */
@@ -121,7 +121,7 @@ enum resetstatus {
 	 */
 };
 
-enum opcode {
+enum i3c_opcode {
 	/*
 	 * Reset bewirkt einen Reboot des Clients.
 	 */
