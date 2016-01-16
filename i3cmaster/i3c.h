@@ -83,10 +83,40 @@ enum error {
 	 */
 };
 
-enum statusbyte {
-	ST_ACK = 0,
-	ST_DATA = 1,
-	ST_BACKOFF=2
+/*
+ * Reset Status information, stating if any why the slave has just come out
+ * of a hardware reset.
+ *
+ * Wenn der Reset-Status sich auf einen Wert verschieden von 00 ändert,
+ * wird auch der INT-Status aktiviert. Der Reset-Status wird nach der
+ * ersten Status-Abfrage zurückgesetzt.
+ */
+enum resetstatus {
+        /*
+	 * Normalbetrieb
+	 */
+	RST_NONE = 0,
+
+	/*
+	 * Reset (extern über den RESET-Pin oder per Power-On)
+	 */
+	RST_EXTERAL = 1,
+
+	/*
+	 * Software-Reset
+	 */
+	RST_SOFTWARE = 2,
+
+	/*
+	 * Watchdog-Reset
+	 */
+	RST_WATCHDOG = 3
+
+	/*
+	 * Reset state is coded by four bits in the status response,
+	 * there cannot be any additions to this enum without changing
+	 * the protocol structure!
+	 */
 };
 
 enum opcode {
