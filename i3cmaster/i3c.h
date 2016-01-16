@@ -1,3 +1,8 @@
+
+#include <stdint.h>
+#include <stdbool.h>
+
+
 struct slave {
 	uint8_t address[255];
 };
@@ -28,12 +33,54 @@ struct frame {
 	struct packet *packets;
 } ;
 
+/*
+ * Error status codes if ST states ERROR.
+ */
 enum error {
+	/* Abort
+	 *
+	 * Abbruch der Kommunikation, Verwerfen des aktuellen Frames
+	 */
 	E_ABORT = 0,
+
+	/* CRC-Fehler
+	 *
+	 * das letzte Paket wird erneut verschickt
+	 */
 	E_CRC = 1,
+
+	/* Frame Error
+	 *
+	 * Der Frame wird aufgrund von Paketverlust verworfen,
+	 * Der Master startet die Übertragung des Frames erneut.
+	 */
 	E_FRAME = 2,
+
+	/* Unbekannter OpCode
+	 *
+	 * Der OpCode wurde nicht erkannt.
+	 */
 	E_OPCODE =3,
-	E_FIFO = 4
+
+	/* FIFO Overrun
+	 *
+	 * Der Befehlspuffer im Slave ist noch belegt, derzeit können
+         * keine Pakete empfangen werden.
+	 */
+	E_FIFO = 4,
+
+	/* No Packet Available
+	 *
+	 * (Antwort auf 2) Es liegt kein Paket zum Re-Send vor.
+	 * Dieser Fehler tritt auf, wenn der Slave einen Reset
+	 * durchgeführt hat und der Master die letzte Antwort nochmals
+	 * anfordert.
+	 */
+	E_NOPACKET = 5,
+
+	/*
+	 * Additional error codes can be added here.
+	 */
 };
 
 enum statusbyte {
