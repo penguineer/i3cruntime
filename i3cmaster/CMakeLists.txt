@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project (I3CMASTER)
 
-set(CMAKE_C_FLAGS "-std=c99")
+set(CMAKE_C_FLAGS "-std=c++14")
 
 
-add_executable(i3cmaster master.c)
+add_executable(i3cmaster master.cpp)
