@@ -178,10 +178,19 @@ enum i3c_opcode {
 	 */
 };
 
+enum slave_priority {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  REALTIME = 3
+};
 
 struct slave {
 	uint8_t address[255];
+	uint64_t intcount[255];
+	enum slave_priority priority[255];
 };
+
 
 enum packetcounter {
 	EVEN = 0,
@@ -190,20 +199,25 @@ enum packetcounter {
 
 struct packet  {
 	uint8_t data;
-	enum packet_state status;
+	enum i3c_packet_state status;
 	enum packetcounter pc;
 	uint8_t crc;
 	uint8_t adr;
 	uint8_t destination;
 } ;
 
-struct frame {
-	// amount of packets inside frame
-	int length;
-	struct packet *packets;
-} ;
 
-/*
+
+struct i3c_status {
+  bool int_active;
+  enum i3c_resetstatus rst;
+  uint8_t app;
+};
+
+
+
+// 	  
+/*TODO - entfernen: Umrechnungshilfe DEC => BIN
    1	0001
    2	0010
    3	0011
