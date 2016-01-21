@@ -8,7 +8,7 @@ uint8_t i3c_commhandler::i3c_send ( uint8_t dst, uint8_t opcode, uint8_t* params
 int i3c_commhandler::init(const char *i2cdevice) {
   int fd;
   unsigned long funcs;
-  
+  epb = new xmppsc::I2CEndpointBroker();
   if ( ( fd = open ( i2cdevice, O_RDWR ) ) < 0 ) {
     perror ( "Failed to open the i2c bus\n" );
     return ( 1 );
@@ -51,7 +51,7 @@ uint8_t i3c_getstatus (
 void i3c_commhandler::scan_i2c_bus ()
 {
   int device = this->devicedescriptor;
-  int port, res;
+  uint8_t port, res;
   
   /* Adressbereich 7 Bit */
   for ( port = 0; port < 127; port++ ) {
@@ -62,6 +62,7 @@ void i3c_commhandler::scan_i2c_bus ()
       res = i2c_smbus_read_byte ( device );
       if ( res >= 0 ) {
 	printf ( "i2c chip found at: %x, val = %d\n", port, res );
+	epb->endpoint(port, xmppsc::MEDIUM);
       }
     }
   }
