@@ -19,18 +19,6 @@
 #include <iostream>
 #include "slave.h"
 #include "i3c_commhandler.h"
-/*
-
-#include <wiringPi.h>
-#include <wiringPiI2C.h>
-
-#define MPU6050_GYRO_XOUT_H        0x43   // R
-#define MPU6050_GYRO_YOUT_H        0x45   // R
-#define MPU6050_GYRO_ZOUT_H        0x47   // R
-
-#define MPU6050_PWR_MGMT_1         0x6B   // R/W
-#define MPU6050_I2C_ADDRESS        0x68   // I2C*/
-
 
 using namespace std;
 
@@ -38,8 +26,6 @@ int main()
 {
     const char i2cbus[255]="/dev/i2c-1";
     uint8_t address;
-   
-
 
     i3c_commhandler ch;
     ch.init ( i2cbus );

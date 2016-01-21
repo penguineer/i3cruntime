@@ -7,19 +7,12 @@
 #include <stdio.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
-
+#include "i2cendpoint.h"
 #include <sys/stat.h>
 
 class i3c_commhandler
 {
-private:
-        int devicedescriptor;
-        char devicename[255];
-        int packetcounter;
-	Slavelist slaves;
-	
-	bool packet_isvalid(packet p);
-	int scan_i2c_bus();
+
 
 public:
         int init ( const char *i2cdevice );
@@ -38,4 +31,13 @@ public:
                 uint8_t **response,     // Ziel-Array für die Antwort
                 uint8_t res_count       // Anzahl der Antwortpakete
         );
+
+private:
+        int devicedescriptor;
+        char devicename[255];
+        int packetcounter;
+        Slavelist slaves;
+	xmppsc::I2CEndpointBroker* epb;
+        bool packet_isvalid ( packet p );
+        void scan_i2c_bus();
 };
