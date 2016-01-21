@@ -186,14 +186,6 @@ enum packetcounter {
         ODD = 1
 };
 
-struct packet  {
-        uint8_t data;
-        enum i3c_packet_state status;
-        enum packetcounter pc;
-        uint8_t crc;
-        uint8_t adr;
-        uint8_t destination;
-} ;
 
 
 
