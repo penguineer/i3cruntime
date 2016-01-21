@@ -2,7 +2,6 @@
 #include "i3c.h"
 #include <string.h>
 #include "packet.h"
-#include "slavelist.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <linux/i2c-dev.h>
@@ -36,7 +35,6 @@ private:
         int devicedescriptor;
         char devicename[255];
         int packetcounter;
-        Slavelist slaves;
 	xmppsc::I2CEndpointBroker* epb;
         bool packet_isvalid ( packet p );
         void scan_i2c_bus();
