@@ -7,34 +7,9 @@ uint8_t i3c_commhandler::i3c_send ( uint8_t dst, uint8_t opcode, uint8_t* params
 
 int i3c_commhandler::init(const char *i2cdevice) {
   int fd;
-  unsigned long funcs;
-  epb = new xmppsc::I2CEndpointBroker();
-  if ( ( fd = open ( i2cdevice, O_RDWR ) ) < 0 ) {
-    perror ( "Failed to open the i2c bus\n" );
-    return ( 1 );
-  }
 
-  /* Abfragen, ob die I2C-Funktionen da sind */
-  if ( ioctl ( fd ,I2C_FUNCS,&funcs ) < 0 ) {
-    perror ( "ioctl() I2C_FUNCS failed" );
-    return ( 1 );
-  }
-  /* Ergebnis untersuchen */
-  if ( funcs & I2C_FUNC_I2C ) {
-    printf ( "I2C\n" );
-  }
-  if ( funcs & ( I2C_FUNC_SMBUS_BYTE ) ) {
-    printf ( "I2C_FUNC_SMBUS_BYTE\n" );
-  }
-  
-  this->devicedescriptor = fd;
-  this->packetcounter = 0;
-  memcpy(this->devicename,i2cdevice,sizeof(i2cdevice));
-  /* scan bus and create list of slaves */
-  
-  return 0;
-  
-  scan_i2c_bus (); 
+  epb = new xmppsc::I2CEndpointBroker();
+ 
 }
 
 uint8_t i3c_getstatus (
@@ -50,23 +25,3 @@ uint8_t i3c_getstatus (
   return ( 0 );
 }
 
-/* Suche nach I2C-Adressen */
-void i3c_commhandler::scan_i2c_bus ()
-{
-  int device = this->devicedescriptor;
-  uint8_t port, res;
-  
-  /* Adressbereich 7 Bit */
-  for ( port = 0; port < 127; port++ ) {
-    if ( ioctl ( device, I2C_SLAVE, port ) < 0 ) {
-      perror ( "ioctl() I2C_SLAVE failed\n" );
-    } else {
-      /* kann gelesen werden? */
-      res = i2c_smbus_read_byte ( device );
-      if ( res >= 0 ) {
-	printf ( "i2c chip found at: %x, val = %d\n", port, res );
-	epb->endpoint(port, xmppsc::MEDIUM);
-      }
-    }
-  }
-}

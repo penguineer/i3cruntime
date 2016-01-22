@@ -21,9 +21,25 @@
 #include <string>
 #include <inttypes.h>
 #include <map>
+
+// i2c includes
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 // #include "i2cmethods.h"
 namespace xmppsc
 {
+
+class I2CAddress
+{
+public:
+        void set ( uint8_t address ) throw(std::out_of_range);
+        uint8_t to_int();
+private:
+        uint8_t address;
+};
 
 //! Exception during I2C communication via an endpoint.
 class I2CEndpointException : public std::exception
@@ -52,7 +68,7 @@ public:
         virtual const char* what() const throw();
 private:
         const int m_address;
-        const int m_error;
+        const int m_error ;
         const std::string m_what;
 };
 
@@ -69,17 +85,11 @@ private:
  * See http://wiringpi.com/reference/i2c-library/ for details. Most documentation
  * is just copied from there.
  */
-enum endpoint_priority {
-  LOW = 0,
-  MEDIUM = 1,
-  HIGH = 2,
-  REALTIME = 3
-};
 
 class I2CEndpoint
 {
 public:
-  
+
 
         //! Create an endpoint instance for a specific address.
         /*!
@@ -88,7 +98,7 @@ public:
          * @throw I2CEndpointException if the endpoint cannot be initialized
          */
 
-        I2CEndpoint ( const uint8_t address , enum endpoint_priority priority) throw ( I2CEndpointException, std::out_of_range );
+        I2CEndpoint ( const uint8_t address ) throw ( I2CEndpointException, std::out_of_range );
 
         ~I2CEndpoint() throw();
 
@@ -157,7 +167,7 @@ private:
         I2CEndpoint ( const I2CEndpoint& other );
 
         int count;
-        enum endpoint_priority priority;
+
 //     uint8_t address;
         int packetcounter;
 
@@ -176,12 +186,12 @@ public:
         ~I2CEndpointBroker() throw();
 
         //! Create (if necessary) and return an I2C endpoint for the specified address.
-        I2CEndpoint* endpoint ( const uint8_t address, enum endpoint_priority priority ) throw ( I2CEndpointException, std::out_of_range );
+        I2CEndpoint* endpoint ( const uint8_t address ) throw ( I2CEndpointException, std::out_of_range );
 
 private:
         typedef std::map<int, I2CEndpoint*> endpoint_map;
         endpoint_map endpoints;
-
+        int scan_i2c_bus ( const char *bus ) const throw();
         void free_all_endpoints() throw();
 };
 

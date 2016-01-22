@@ -2,12 +2,19 @@
 #include "i3c.h"
 #include <string.h>
 #include "packet.h"
-#include <fcntl.h>
+
 #include <stdio.h>
-#include <linux/i2c-dev.h>
-#include <sys/ioctl.h>
+
 #include "i2cendpoint.h"
 #include <sys/stat.h>
+
+
+enum class endpoint_priority {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  REALTIME = 3
+};
 
 class i3c_commhandler
 {
@@ -32,6 +39,7 @@ public:
         );
 
 private:
+  enum endpoint_priority priority;
         int devicedescriptor;
         char devicename[255];
         int packetcounter;

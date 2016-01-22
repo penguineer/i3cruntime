@@ -17,16 +17,35 @@
 
 #include "i2cendpoint.h"
 
+#include <iostream>
 
-namespace xmppsc {
+namespace xmppsc
+{
+
+void I2CAddress::set ( uint8_t address ) throw ( std::out_of_range )
+{
+    if ( ( address >= 0 ) && ( address < 127 ) ) {
+            this->address = address;
+        }
+        else {
+	  throw std::out_of_range("i2c address must be between 0 and 127");
+    }
+
+}
+
+uint8_t I2CAddress::to_int()
+{
+    return this->address;
+}
 
 
-I2CEndpointException::I2CEndpointException(const uint8_t address, const int error, const std::string& msg)
-    : m_address(address), m_error(error), m_what(msg) { }
+I2CEndpointException::I2CEndpointException ( const uint8_t address, const int error, const std::string& msg )
+    : m_address ( address ), m_error ( error ), m_what ( msg ) { }
 
 I2CEndpointException::~I2CEndpointException() throw() {}
 
-const uint8_t I2CEndpointException::address() const throw() {
+const uint8_t I2CEndpointException::address() const throw()
+{
     return m_address;
 }
 
@@ -54,23 +73,23 @@ I2CEndpointBroker::~I2CEndpointBroker() throw()
     free_all_endpoints();
 }
 
-I2CEndpoint* I2CEndpointBroker::endpoint(const uint8_t address, enum endpoint_priority priority) throw(I2CEndpointException, std::out_of_range)
+I2CEndpoint* I2CEndpointBroker::endpoint ( const uint8_t address ) throw ( I2CEndpointException, std::out_of_range )
 {
     // try to get endpoint from the map
-    endpoint_map::iterator it = endpoints.find(address);
+    endpoint_map::iterator it = endpoints.find ( address );
 
-    if (it == endpoints.end()) {
+    if ( it == endpoints.end() ) {
         // none found, create and setup
-        I2CEndpoint* ep = new I2CEndpoint(address, priority);
+        I2CEndpoint* ep = new I2CEndpoint ( address );
 
         // store
         std::pair<endpoint_map::iterator, bool> res =
-            endpoints.insert(endpoint_map::value_type(address, ep));
+            endpoints.insert ( endpoint_map::value_type ( address, ep ) );
 
         // throw an exception if the endpoint could not be stored to the map
-        if (!res.second) {
+        if ( !res.second ) {
             delete ep;
-            throw I2CEndpointException(address, 0, "Could not store endpoint to broker!");
+            throw I2CEndpointException ( address, 0, "Could not store endpoint to broker!" );
         }
 
         return ep;
@@ -82,13 +101,62 @@ I2CEndpoint* I2CEndpointBroker::endpoint(const uint8_t address, enum endpoint_pr
 void I2CEndpointBroker::free_all_endpoints() throw()
 {
     // close all endpoints
-    for (endpoint_map::iterator it = endpoints.begin(); it != endpoints.end(); it++) {
+    for ( endpoint_map::iterator it = endpoints.begin(); it != endpoints.end(); it++ ) {
         I2CEndpoint* ep = it->second;
         delete ep;
-        endpoints.erase(it);
+        endpoints.erase ( it );
     }
 }
 
+/* Suche nach I2C-Adressen */
+int I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
+{
+    int fd;
+    unsigned long funcs;
+    if ( ( fd = open ( bus, O_RDWR ) ) < 0 ) {
+//     perror ( "Failed to open the i2c bus\n" );
+        return ( 1 );
+    }
+
+    /* Abfragen, ob die I2C-Funktionen da sind */
+    if ( ioctl ( fd ,I2C_FUNCS,&funcs ) < 0 ) {
+//     perror ( "ioctl() I2C_FUNCS failed" );
+        return ( 1 );
+    }
+    /* Ergebnis untersuchen */
+    if ( funcs & I2C_FUNC_I2C ) {
+//     printf ( "I2C\n" );
+    }
+    if ( funcs & ( I2C_FUNC_SMBUS_BYTE ) ) {
+//     printf ( "I2C_FUNC_SMBUS_BYTE\n" );
+    }
+
+//   this->devicedescriptor = fd;
+//   this->packetcounter = 0;
+//   memcpy(this->devicename,bus,sizeof(bus));
+    /* scan bus and return addresses */
+
+//   int device = open(bus,
+    uint8_t port, res;
+
+
+    // TODO use address objects
+    /* Adressbereich 7 Bit */
+    for ( port = 0; port < 127; port++ ) {
+        if ( ioctl ( fd, I2C_SLAVE, port ) < 0 ) {
+//       perror ( "ioctl() I2C_SLAVE failed\n" );
+        } else {
+            /* kann gelesen werden? */
+            res = i2c_smbus_read_byte ( fd );
+            if ( res >= 0 ) {
+                std::cout << "i2c chip found at: "<< port << "value: " << res << "\n" ;
+// 	epb->endpoint(port);
+            }
+        }
+
+    }
+    close ( fd );
+}
 
 } // namespace xmppsc
 
