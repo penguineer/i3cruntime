@@ -31,6 +31,9 @@ int i3c_commhandler::init(const char *i2cdevice) {
   this->packetcounter = 0;
   memcpy(this->devicename,i2cdevice,sizeof(i2cdevice));
   /* scan bus and create list of slaves */
+  
+  return 0;
+  
   scan_i2c_bus (); 
 }
 
