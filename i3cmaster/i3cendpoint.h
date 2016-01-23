@@ -22,6 +22,14 @@
 #include <map>
 #include "i2cendpoint.h"
 
+enum endpoint_priority {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  REALTIME = 3
+};
+
+
 namespace i3c
 {
   
@@ -45,7 +53,7 @@ namespace i3c
      * @throw I2CEndpointException if the endpoint cannot be initialized
      */
     
-    I3CEndpoint ( i2c::I2CAddress address ) throw ( i2c::I2CEndpointException ) ;
+    I3CEndpoint ( i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException ) ;
     
     ~I3CEndpoint() throw();
     
@@ -101,8 +109,6 @@ namespace i3c
     I3CEndpoint ( const I3CEndpoint& other );
     
     int count;
-    
-    //     uint8_t address;
     int packetcounter;
     
 //     const i2c::I2CAddress m_address;

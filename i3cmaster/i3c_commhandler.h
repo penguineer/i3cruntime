@@ -10,12 +10,6 @@
 
 namespace i3c {
 
-enum endpoint_priority {
-  LOW = 0,
-  MEDIUM = 1,
-  HIGH = 2,
-  REALTIME = 3
-};
 
 class i3c_commhandler
 {
@@ -40,7 +34,7 @@ public:
         );
 
 private:
-  enum endpoint_priority priority;
+//   enum endpoint_priority priority;
         int devicedescriptor;
         char devicename[255];
         int packetcounter;

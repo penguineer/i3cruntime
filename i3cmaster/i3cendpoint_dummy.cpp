@@ -44,7 +44,7 @@ namespace {
 
 namespace i3c {
   
-  I3CEndpoint::I3CEndpoint(i2c::I2CAddress address) throw (i2c::I2CEndpointException)
+  I3CEndpoint::I3CEndpoint(const i2c::I2CAddress address, enum endpoint_priority priority) throw (i2c::I2CEndpointException)
   {
     count=0;
     m_address = address;
@@ -75,7 +75,7 @@ namespace i3c {
   }
   
   
-  uint8_t I3CEndpoint::read() throw(i2c::I2CEndpointException())
+  uint8_t I3CEndpoint::read() throw(i2c::I2CEndpointException)
   {
     std::stringstream msg("");
     msg << "Please input simple read result (hex) for device 0x" << std::hex << m_address.to_int() << ": ";

@@ -47,7 +47,7 @@ public:
         //! return an uint8_t Representation of the object
         const uint8_t to_int() const;
         bool operator < ( const I2CAddress i2caddress ) const ;
-
+// 	I2CAddress() ;
 protected:
         uint8_t address; //! the i2c address
 };
@@ -78,6 +78,7 @@ public:
          */
         virtual const char* what() const throw();
 
+	
 
 private:
 
@@ -114,6 +115,8 @@ public:
 
         I2CEndpoint ( I2CAddress address ) throw ( I2CEndpointException );
 
+	// TODO - why is this constructor even needed?
+// 	I2CEndpoint ();
         ~I2CEndpoint() throw();
 
         //! Return the address for this endpoint.

@@ -22,7 +22,9 @@ I3CEndpoint* I3CEndpointBroker::endpoint ( i2c::I2CAddress address ) throw ( i2c
 
     if ( it == endpoints.end() ) {
         // none found, create and setup
-        I3CEndpoint* ep = new I3CEndpoint ( address );
+      // TODO obtain priority from config file
+      endpoint_priority priority = MEDIUM;
+        I3CEndpoint* ep = new I3CEndpoint ( address , priority);
 
         // store
         std::pair<endpoint_map::iterator, bool> res =
