@@ -33,8 +33,7 @@ namespace i3c
    * This introduces an INT-Line in addition to device priorities
    */
   
-  class I3CEndpoint  : i2c::I2CEndpoint
-  
+  class I3CEndpoint  : public i2c::I2CEndpoint
   {
   public:
     
@@ -46,7 +45,7 @@ namespace i3c
      * @throw I2CEndpointException if the endpoint cannot be initialized
      */
     
-    I3CEndpoint ( i2c::I2CAddress address ) throw ( i2c::I2CEndpointException, std::out_of_range ) ;
+    I3CEndpoint ( i2c::I2CAddress address ) throw ( i2c::I2CEndpointException ) ;
     
     ~I3CEndpoint() throw();
     
@@ -54,7 +53,7 @@ namespace i3c
     /*!
      * @returns The endpoint device address.
      */
-    // const i2c::I2CAddress address() const throw();
+//     const i2c::I2CAddress address() const throw();
     
     //! Simple device read_reg_16
     /*!
@@ -63,7 +62,7 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws i2c::I2CEndpointException if access to the I2C device fails.
      */
-//     uint8_t read() throw ( i2c::I2CEndpointException );
+    uint8_t read() throw ( i2c::I2CEndpointException );
     //! Simple device write.
     /*!
      * Some devices accept data this way without needing to access any internal registers.
@@ -72,7 +71,7 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-//     uint8_t write ( const int data ) throw ( i2c::I2CEndpointException );
+    uint8_t write ( const uint8_t data ) throw ( i2c::I2CEndpointException );
     
     //! Read 8 bits of data from a device register.
     /*!
@@ -80,15 +79,8 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-//     uint8_t read_reg_8 ( const int reg ) throw ( i2c::I2CEndpointException );
-    //! Read 16 bits of data from a device register.
-    /*!
-     * @param reg The device register.
-     * @returns Result from the I2C call.
-     * @throws I2CEndpointException if access to the I2C device fails.
-     */
-//     int read_reg_16 ( const int reg ) throw ( i2c::I2CEndpointException );
-    
+     uint8_t read_reg_8 ( const int reg ) throw ( i2c::I2CEndpointException );
+
     //! Write 8 bits of data to a device register.
     /*!
      * @param reg The device register.
@@ -96,19 +88,13 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-//     int write_reg_8 ( const int reg, const int data ) throw ( i2c::I2CEndpointException );
-    //! Write 16 bits of data to a device register.
-    /*!
-     * @param reg The device register.
-     * @param data The data.
-     * @returns Result from the I2C call.
-     * @throws I2CEndpointException if access to the I2C device fails.
-     */
-//     int write_reg_16 ( const int reg, const int data ) throw ( i2c::I2CEndpointException );
-    
+     int write_reg_8 ( const int reg, const int data ) throw ( i2c::I2CEndpointException );
+
   protected:
     int _fd() const throw();
-    
+//     const i2c::I2CAddress m_address;
+//     int m_fd;
+//     
   private:
     // No Copies of this instance!
     // (Not implemented and never to be called.)
@@ -121,6 +107,25 @@ namespace i3c
     
 //     const i2c::I2CAddress m_address;
 //    int m_fd;
+    
+    // never to be called
+    //! Write 16 bits of data to a device register.
+    /*!
+     * @param reg The device register.
+     * @param data The data.
+     * @returns Result from the I2C call.
+     * @throws I2CEndpointException if access to the I2C device fails.
+     */
+         int write_reg_16 ( const int reg, const int data ) throw ( i2c::I2CEndpointException );
+	
+	 //! Read 16 bits of data from a device register.
+	 /*!
+	  * @param reg The device register.
+	  * @returns Result from the I2C call.
+	  * @throws I2CEndpointException if access to the I2C device fails.
+	  */
+	 int read_reg_16 ( const int reg ) throw ( i2c::I2CEndpointException );
+	 
   };
 //! this will implement i3c on top of i2c
 class I3CEndpointBroker

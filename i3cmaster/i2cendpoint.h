@@ -45,12 +45,11 @@ public:
          */
         I2CAddress ( uint8_t address ) throw ( std::out_of_range );
         //! return an uint8_t Representation of the object
-        uint8_t to_int();
+        const uint8_t to_int() const;
         bool operator < ( const I2CAddress i2caddress ) const ;
-private:
 
+protected:
         uint8_t address; //! the i2c address
-
 };
 
 //! Exception during I2C communication via an endpoint.
@@ -121,7 +120,7 @@ public:
         /*!
          * @returns The endpoint device address.
          */
-        const uint8_t address() const throw();
+        const I2CAddress address() const throw();
 
         //! Simple device read_reg_16
         /*!
@@ -175,6 +174,9 @@ public:
 
 protected:
         int _fd() const throw();
+        I2CAddress m_address;
+        int packetcounter;
+        int m_fd;
 
 private:
         // No Copies of this instance!
@@ -186,9 +188,10 @@ private:
 //     uint8_t address;
 //         int packetcounter;
 
-        const uint8_t m_address;
-        int m_fd;
-        int packetcounter;
+//         const uint8_t m_address;
+
+
+
 };
 
 //! Store and manage a cache of already established I2C endpoints

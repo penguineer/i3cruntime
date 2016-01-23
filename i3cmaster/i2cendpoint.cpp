@@ -21,41 +21,45 @@
 #include <string>
 #include <sstream>
 
-namespace {
-  
-  void __dummy_message(const std::string msg) {
+namespace
+{
+
+void __dummy_message ( const std::string msg )
+{
     std::cout << msg << std::endl;
-  }
-  
-  int __dummy_input(const std::string msg) {
+}
+
+int __dummy_input ( const std::string msg )
+{
     std::cout << msg;
-    
+
     int in;
     std::cin >> std::hex >> in;
-    
+
     return in;
-  }
 }
-  
+}
+
 namespace i2c
 {
 
 I2CAddress::I2CAddress ( uint8_t address ) throw ( std::out_of_range )
 {
-    if ( ( address >= min) && ( address <= max) ) {
+    if ( ( address >= min ) && ( address <= max ) ) {
         this->address = address;
     } else {
-      std::stringstream msg("");
-      msg << "I2C address " << address << " is out of range, must be between 0 and 127!";
-      throw std::out_of_range(msg.str());
-        }
+        std::stringstream msg ( "" );
+        msg << "I2C address " << address << " is out of range, must be between 0 and 127!";
+        throw std::out_of_range ( msg.str() );
+    }
 }
 
-bool I2CAddress::operator < (const I2CAddress i2caddress) const {
-  return (address < i2caddress.address);
+bool I2CAddress::operator < ( const I2CAddress i2caddress ) const
+{
+    return ( address < i2caddress.address );
 }
 
-uint8_t I2CAddress::to_int()
+const uint8_t I2CAddress::to_int() const
 {
     return this->address;
 }
@@ -136,21 +140,21 @@ int I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
     int fd;
     unsigned long funcs;
     if ( ( fd = open ( bus, O_RDWR ) ) < 0 ) {
-    perror ( "Failed to open the i2c bus\n" );
+        perror ( "Failed to open the i2c bus\n" );
         return ( 1 );
     }
 
     /* Abfragen, ob die I2C-Funktionen da sind */
     if ( ioctl ( fd ,I2C_FUNCS,&funcs ) < 0 ) {
-    perror ( "ioctl() I2C_FUNCS failed" );
+        perror ( "ioctl() I2C_FUNCS failed" );
         return ( 1 );
     }
     /* Ergebnis untersuchen */
     if ( funcs & I2C_FUNC_I2C ) {
-    printf ( "I2C\n" );
+        printf ( "I2C\n" );
     }
     if ( funcs & ( I2C_FUNC_SMBUS_BYTE ) ) {
-    printf ( "I2C_FUNC_SMBUS_BYTE\n" );
+        printf ( "I2C_FUNC_SMBUS_BYTE\n" );
     }
 
     /* scan bus and return addresses */
@@ -159,17 +163,16 @@ int I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
     uint8_t port, res;
 
 
-    // TODO use address objects
     for ( port = I2CAddress::min; port < I2CAddress::max; port++ ) {
         if ( ioctl ( fd, I2C_SLAVE, port ) < 0 ) {
-      perror ( "ioctl() I2C_SLAVE failed\n" );
+            perror ( "ioctl() I2C_SLAVE failed\n" );
         } else {
             /* kann gelesen werden? */
             res = i2c_smbus_read_byte ( fd );
             if ( res >= 0 ) {
-	      char error[1024];
-	      snprintf(error, 1024, "i2c chip found at: %d value: %d" , port, res);
-	      perror(error);
+                char error[1024];
+                snprintf ( error, 1024, "i2c chip found at: %d value: %d" , port, res );
+                perror ( error );
             }
         }
 
