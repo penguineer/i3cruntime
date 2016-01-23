@@ -32,22 +32,24 @@
 namespace xmppsc
 {
 
-  //! Representation of an address on the i2c bus
+//! Representation of an address on the i2c bus
 class I2CAddress
 {
 public:
-  enum range { min = 0, max = 127 };
-  //! create an I2CAddress
-  /*!
-   * @param address Device address of the I2C peer.
-   */
-        I2CAddress ( uint8_t address ) throw(std::out_of_range);
-	//! return an uint8_t Representation of the object
+        //! the range in which I2CAddress-addresses are valid
+        enum range { min = 0, max = 127 };
+
+        //! create an I2CAddress
+        /*!
+         * @param address Device address of the I2C peer.
+         */
+        I2CAddress ( uint8_t address ) throw ( std::out_of_range );
+        //! return an uint8_t Representation of the object
         uint8_t to_int();
 
-protected:
-        uint8_t address;
-	
+private:
+        uint8_t address; //! the i2c address
+
 };
 
 //! Exception during I2C communication via an endpoint.

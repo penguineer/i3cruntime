@@ -20,7 +20,7 @@
 
 namespace xmppsc
 {
-//! Address on the i2c bus
+
 I2CAddress::I2CAddress ( uint8_t address ) throw ( std::out_of_range )
 {
     if ( ( address >= min) && ( address <= max) ) {
