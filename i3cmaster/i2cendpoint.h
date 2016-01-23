@@ -62,12 +62,12 @@ public:
          * @param errno The errno from the backing I2C library
          * @param const msg an error message if available
          */
-        I2CEndpointException ( const uint8_t address, const int error, const std::string& msg );
+        I2CEndpointException ( I2CAddress address, const int error, const std::string& msg );
 
         virtual ~I2CEndpointException() throw();
 
         //! Get the device address corresponding to this exception.
-        virtual const uint8_t address() const throw();
+        virtual I2CAddress address() const throw();
 
         //! Get the error (errno) corresponding to this exception.
         virtual const int error() const throw();
@@ -78,7 +78,7 @@ public:
          */
         virtual const char* what() const throw();
 private:
-        const int m_address;
+        I2CAddress m_address;
         const int m_error ;
         const std::string m_what;
 };

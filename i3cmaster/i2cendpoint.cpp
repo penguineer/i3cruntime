@@ -36,12 +36,12 @@ uint8_t I2CAddress::to_int()
 }
 
 
-I2CEndpointException::I2CEndpointException ( const uint8_t address, const int error, const std::string& msg )
-    : m_address ( address ), m_error ( error ), m_what ( msg ) { }
+I2CEndpointException::I2CEndpointException ( I2CAddress address, const int error, const std::string& msg )
+    : m_address ( address.to_int() ), m_error ( error ), m_what ( msg ) { }
 
 I2CEndpointException::~I2CEndpointException() throw() {}
 
-const uint8_t I2CEndpointException::address() const throw()
+I2CAddress I2CEndpointException::address() const throw()
 {
     return m_address;
 }
