@@ -44,19 +44,10 @@ int __dummy_input(const std::string msg) {
 
 namespace i2c {
 
-I2CEndpoint::I2CEndpoint(const uint8_t address) throw (I2CEndpointException, std::out_of_range)
-    : m_address(address), m_fd(0)
+I2CEndpoint::I2CEndpoint(I2CAddress address) throw (I2CEndpointException)
+    : m_address(address.to_int()), m_fd(0)
 {
   count=0;
-//   this->priority = priority;
-//   packetcounter=0;
-  
-    if (address < 0 || address > 0xff) {
-        std::stringstream msg("");
-        msg << "I2C address " << address << " is out of range, must be between 0 and 0xFF!";
-        throw std::out_of_range(msg.str());
-    }
-    
     m_fd = 1;
     std::stringstream msg("");
     msg << "I2C dummy device " << m_address << " has been set up with fd " << m_fd;

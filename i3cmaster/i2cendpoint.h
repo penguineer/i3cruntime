@@ -46,8 +46,9 @@ public:
         I2CAddress ( uint8_t address ) throw ( std::out_of_range );
         //! return an uint8_t Representation of the object
         uint8_t to_int();
-
+        bool operator < ( const I2CAddress i2caddress ) const ;
 private:
+
         uint8_t address; //! the i2c address
 
 };
@@ -77,7 +78,10 @@ public:
          * \returns the exception message
          */
         virtual const char* what() const throw();
+
+
 private:
+
         I2CAddress m_address;
         const int m_error ;
         const std::string m_what;
@@ -109,7 +113,7 @@ public:
          * @throw I2CEndpointException if the endpoint cannot be initialized
          */
 
-        I2CEndpoint ( const uint8_t address ) throw ( I2CEndpointException, std::out_of_range );
+        I2CEndpoint ( I2CAddress address ) throw ( I2CEndpointException );
 
         ~I2CEndpoint() throw();
 
@@ -201,7 +205,7 @@ public:
         I2CEndpoint* endpoint ( I2CAddress address ) throw ( I2CEndpointException, std::out_of_range );
 
 private:
-        typedef std::map<int, I2CEndpoint*> endpoint_map;
+        typedef std::map<I2CAddress, I2CEndpoint*> endpoint_map;
         endpoint_map endpoints;
         int scan_i2c_bus ( const char *bus ) const throw();
         void free_all_endpoints() throw();

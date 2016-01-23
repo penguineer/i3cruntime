@@ -17,7 +17,26 @@
 
 #include "i2cendpoint.h"
 #include <stdio.h>
+#include <iostream>
+#include <string>
+#include <sstream>
 
+namespace {
+  
+  void __dummy_message(const std::string msg) {
+    std::cout << msg << std::endl;
+  }
+  
+  int __dummy_input(const std::string msg) {
+    std::cout << msg;
+    
+    int in;
+    std::cin >> std::hex >> in;
+    
+    return in;
+  }
+}
+  
 namespace i2c
 {
 
@@ -26,8 +45,14 @@ I2CAddress::I2CAddress ( uint8_t address ) throw ( std::out_of_range )
     if ( ( address >= min) && ( address <= max) ) {
         this->address = address;
     } else {
-        throw std::out_of_range ( "i2c address must be between 0 and 127" );
-    }
+      std::stringstream msg("");
+      msg << "I2C address " << address << " is out of range, must be between 0 and 127!";
+      throw std::out_of_range(msg.str());
+        }
+}
+
+bool I2CAddress::operator < (const I2CAddress i2caddress) const {
+  return (address < i2caddress.address);
 }
 
 uint8_t I2CAddress::to_int()
