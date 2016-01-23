@@ -16,21 +16,18 @@
 //TODO comments
 
 #include "i2cendpoint.h"
-
-#include <iostream>
+#include <stdio.h>
 
 namespace xmppsc
 {
-
-void I2CAddress::set ( uint8_t address ) throw ( std::out_of_range )
+//! Address on the i2c bus
+I2CAddress::I2CAddress ( uint8_t address ) throw ( std::out_of_range )
 {
-    if ( ( address >= 0 ) && ( address < 127 ) ) {
-            this->address = address;
-        }
-        else {
-	  throw std::out_of_range("i2c address must be between 0 and 127");
+    if ( ( address >= min) && ( address <= max) ) {
+        this->address = address;
+    } else {
+        throw std::out_of_range ( "i2c address must be between 0 and 127" );
     }
-
 }
 
 uint8_t I2CAddress::to_int()
@@ -114,43 +111,40 @@ int I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
     int fd;
     unsigned long funcs;
     if ( ( fd = open ( bus, O_RDWR ) ) < 0 ) {
-//     perror ( "Failed to open the i2c bus\n" );
+    perror ( "Failed to open the i2c bus\n" );
         return ( 1 );
     }
 
     /* Abfragen, ob die I2C-Funktionen da sind */
     if ( ioctl ( fd ,I2C_FUNCS,&funcs ) < 0 ) {
-//     perror ( "ioctl() I2C_FUNCS failed" );
+    perror ( "ioctl() I2C_FUNCS failed" );
         return ( 1 );
     }
     /* Ergebnis untersuchen */
     if ( funcs & I2C_FUNC_I2C ) {
-//     printf ( "I2C\n" );
+    printf ( "I2C\n" );
     }
     if ( funcs & ( I2C_FUNC_SMBUS_BYTE ) ) {
-//     printf ( "I2C_FUNC_SMBUS_BYTE\n" );
+    printf ( "I2C_FUNC_SMBUS_BYTE\n" );
     }
 
-//   this->devicedescriptor = fd;
-//   this->packetcounter = 0;
-//   memcpy(this->devicename,bus,sizeof(bus));
     /* scan bus and return addresses */
 
-//   int device = open(bus,
+
     uint8_t port, res;
 
 
     // TODO use address objects
-    /* Adressbereich 7 Bit */
-    for ( port = 0; port < 127; port++ ) {
+    for ( port = I2CAddress::min; port < I2CAddress::max; port++ ) {
         if ( ioctl ( fd, I2C_SLAVE, port ) < 0 ) {
-//       perror ( "ioctl() I2C_SLAVE failed\n" );
+      perror ( "ioctl() I2C_SLAVE failed\n" );
         } else {
             /* kann gelesen werden? */
             res = i2c_smbus_read_byte ( fd );
             if ( res >= 0 ) {
-                std::cout << "i2c chip found at: "<< port << "value: " << res << "\n" ;
-// 	epb->endpoint(port);
+	      char error[1024];
+	      snprintf(error, 1024, "i2c chip found at: %d value: %d" , port, res);
+	      perror(error);
             }
         }
 
