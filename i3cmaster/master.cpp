@@ -26,7 +26,7 @@ int main()
     const char i2cbus[255]="/dev/i2c-1";
     uint8_t address;
 
-    i3c_commhandler ch;
+    i3c::i3c_commhandler ch;
     ch.init ( i2cbus );
 
 

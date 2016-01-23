@@ -18,7 +18,7 @@
 #include "i2cendpoint.h"
 #include <stdio.h>
 
-namespace xmppsc
+namespace i2c
 {
 
 I2CAddress::I2CAddress ( uint8_t address ) throw ( std::out_of_range )
@@ -70,7 +70,7 @@ I2CEndpointBroker::~I2CEndpointBroker() throw()
     free_all_endpoints();
 }
 
-I2CEndpoint* I2CEndpointBroker::endpoint ( const uint8_t address ) throw ( I2CEndpointException, std::out_of_range )
+I2CEndpoint* I2CEndpointBroker::endpoint ( I2CAddress address ) throw ( I2CEndpointException, std::out_of_range )
 {
     // try to get endpoint from the map
     endpoint_map::iterator it = endpoints.find ( address );

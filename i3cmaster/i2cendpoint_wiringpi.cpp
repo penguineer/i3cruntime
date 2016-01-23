@@ -32,7 +32,7 @@
 
 #include <wiringPiI2C.h>
 
-namespace xmppsc {
+namespace i2c {
 
 I2CEndpoint::I2CEndpoint(const int address) throw (I2CEndpointException, std::out_of_range)
     : m_address(address), m_fd(0)

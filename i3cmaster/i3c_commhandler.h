@@ -5,11 +5,12 @@
 
 #include <stdio.h>
 
-#include "i2cendpoint.h"
+#include "i3cendpoint.h"
 #include <sys/stat.h>
 
+namespace i3c {
 
-enum class endpoint_priority {
+enum endpoint_priority {
   LOW = 0,
   MEDIUM = 1,
   HIGH = 2,
@@ -30,7 +31,7 @@ public:
 
         uint8_t                         // Rückgabewert m. Fehlercode
         i3c_send (
-                uint8_t dst,            // I²C-Adresse
+                i2c::I2CAddress dst,            // I²C-Adresse
                 uint8_t opcode,         // I3C-OpCode
                 uint8_t *params,        // dazu passende Parameter
                 uint8_t par_count,      // Anzahl der Parameterpakete
@@ -43,7 +44,9 @@ private:
         int devicedescriptor;
         char devicename[255];
         int packetcounter;
-	xmppsc::I2CEndpointBroker* epb;
+	I3CEndpointBroker* epb;
         bool packet_isvalid ( packet p );
         void scan_i2c_bus();
+};
+
 };

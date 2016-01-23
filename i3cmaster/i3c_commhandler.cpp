@@ -1,6 +1,6 @@
 #include "i3c_commhandler.h"
-
-uint8_t i3c_commhandler::i3c_send ( uint8_t dst, uint8_t opcode, uint8_t* params, uint8_t par_count, uint8_t** response, uint8_t res_count )
+namespace i3c {
+uint8_t i3c_commhandler::i3c_send ( i2c::I2CAddress dst, uint8_t opcode, uint8_t* params, uint8_t par_count, uint8_t** response, uint8_t res_count )
 {
 
 }
@@ -8,7 +8,7 @@ uint8_t i3c_commhandler::i3c_send ( uint8_t dst, uint8_t opcode, uint8_t* params
 int i3c_commhandler::init(const char *i2cdevice) {
   int fd;
 
-  epb = new xmppsc::I2CEndpointBroker();
+  epb = new I3CEndpointBroker();
  
 }
 
@@ -25,3 +25,4 @@ uint8_t i3c_getstatus (
   return ( 0 );
 }
 
+}

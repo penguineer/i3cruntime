@@ -29,7 +29,7 @@
 #include <unistd.h>
 
 // #include "i2cmethods.h"
-namespace xmppsc
+namespace i2c
 {
 
 //! Representation of an address on the i2c bus
@@ -180,10 +180,11 @@ private:
         int count;
 
 //     uint8_t address;
-        int packetcounter;
+//         int packetcounter;
 
         const uint8_t m_address;
         int m_fd;
+        int packetcounter;
 };
 
 //! Store and manage a cache of already established I2C endpoints
@@ -197,7 +198,7 @@ public:
         ~I2CEndpointBroker() throw();
 
         //! Create (if necessary) and return an I2C endpoint for the specified address.
-        I2CEndpoint* endpoint ( const uint8_t address ) throw ( I2CEndpointException, std::out_of_range );
+        I2CEndpoint* endpoint ( I2CAddress address ) throw ( I2CEndpointException, std::out_of_range );
 
 private:
         typedef std::map<int, I2CEndpoint*> endpoint_map;

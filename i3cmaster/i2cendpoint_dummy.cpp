@@ -42,14 +42,14 @@ int __dummy_input(const std::string msg) {
 } // anon namespace
 
 
-namespace xmppsc {
+namespace i2c {
 
 I2CEndpoint::I2CEndpoint(const uint8_t address) throw (I2CEndpointException, std::out_of_range)
     : m_address(address), m_fd(0)
 {
   count=0;
 //   this->priority = priority;
-  packetcounter=0;
+//   packetcounter=0;
   
     if (address < 0 || address > 0xff) {
         std::stringstream msg("");
