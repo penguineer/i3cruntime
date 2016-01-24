@@ -28,10 +28,11 @@ endif (I2C_ENDPOINT_IMPL STREQUAL "wiringpi")
 #	i2cendpoint.cpp i3cendpoint.cpp  i3cendpoint_dummy.cpp i2cendpoint_dummy.cpp)
 add_executable(i3cmaster 
 master/master.cpp
-sys/i2c/i2cendpointbroker.cpp
 platform/dummy/i2cendpoint_dummy.cpp
 master/packet.cpp
 sys/i2c/i2caddress.cpp
+sys/i2c/i2cendpoint.cpp
+sys/i2c/i2cendpointbroker.cpp
 sys/i2c/i2cendpointexception.cpp
 master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
