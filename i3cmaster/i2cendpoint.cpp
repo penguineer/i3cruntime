@@ -153,19 +153,23 @@ void I2CEndpointBroker::free_all_endpoints() throw()
 }
 
 /* Suche nach I2C-Adressen */
-int I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
+std::vector<I2CAddress> I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
 {
+    std::vector<I2CAddress> addresses;
+
     int fd;
     unsigned long funcs;
     if ( ( fd = open ( bus, O_RDWR ) ) < 0 ) {
         perror ( "Failed to open the i2c bus\n" );
-        return ( 1 );
+	// TODO throw an exception
+        return ( addresses );
     }
 
     /* Abfragen, ob die I2C-Funktionen da sind */
     if ( ioctl ( fd ,I2C_FUNCS,&funcs ) < 0 ) {
         perror ( "ioctl() I2C_FUNCS failed" );
-        return ( 1 );
+	// TODO throw an exception
+        return ( addresses );
     }
     /* Ergebnis untersuchen */
     if ( funcs & I2C_FUNC_I2C ) {
@@ -191,11 +195,15 @@ int I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
                 char error[1024];
                 snprintf ( error, 1024, "i2c chip found at: %d value: %d" , port, res );
                 perror ( error );
+
+		addresses.push_back(res);
             }
         }
 
     }
     close ( fd );
+
+    return addresses;
 }
 
 } // namespace xmppsc
