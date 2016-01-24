@@ -17,10 +17,9 @@ uint8_t i3c_getstatus (
   struct i3c_status status// return value: Status
 )
 {
-  uint8_t *nullptr;
   uint8_t **response;
   
-  // i3c_send ( dst,OP_STATUS, nullptr, 0, response, 1 );
+  //i3c_send ( dst,OP_STATUS, nullptr, 0, response, 1 );
   memcpy ( &status, response, sizeof ( status ) );
   return ( 0 );
 }
