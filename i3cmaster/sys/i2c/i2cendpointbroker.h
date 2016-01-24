@@ -13,48 +13,32 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
-
-#ifndef __I2CENDPOINTBROKER_H
-#define __I2CENDPOINTBROKER_H
-
+#include "i2caddress.h"
 #include "i2cendpoint.h"
 
 #include <stdexcept>
-#include <string>
-#include <inttypes.h>
-#include <map>
+#include <memory>
 #include <vector>
 
-// i2c includes
-#include <linux/i2c-dev.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include "i2caddress.h"
-#include "i2cendpointexception.h"
+namespace i3c {
+namespace sys {
+namespace i2c {
 
-namespace i2c
+//! Store and manage a cache of already established I2C endpoints
+class I2CEndpointBroker
 {
-  //! Store and manage a cache of already established I2C endpoints
-  class I2CEndpointBroker
-  {
-  public:
-    //! Create an I2C broker instance.
-    I2CEndpointBroker();
+public:
+        //! Clean-up the instance and clean-up/remove all existing I2C endpoints.
+        virtual ~I2CEndpointBroker() throw();
 
-    //! Clean-up the instance and clean-up/remove all existing I2C endpoints.
-    ~I2CEndpointBroker() throw();
+        //! Create (if necessary) and return an I2C endpoint for the specified address.
+        virtual std::shared_ptr<I2CEndpoint> endpoint (const I2CAddress address) throw (I2CEndpointException) = 0;
 
-    //! Create (if necessary) and return an I2C endpoint for the specified address.
-    I2CEndpoint* endpoint ( I2CAddress address ) throw ( I2CEndpointException, std::out_of_range );
+	virtual std::vector<I2CAddress>&& scan() throw (I2CEndpointException) = 0;
+};
 
-  private:
-    typedef std::map<I2CAddress, I2CEndpoint*> endpoint_map;
-    endpoint_map endpoints;
-    std::vector< I2CAddress >&& scan_i2c_bus ( const char* bus ) const throw();
-    void free_all_endpoints() throw();
-  };
-}
-
-#endif
+} // namespace i2c
+} // namespace sys
+} // namespace i3c
