@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "-std=c++14")
 # dummy is the default
 set(I2C_ENDPOINT_IMPL "dummy")
 # do we have wiringPi?
-find_library(WIRINGPI_LIBRARY NAMES wiringPi wiringPiDev)
+#find_library(WIRINGPI_LIBRARY NAMES wiringPi wiringPiDev)
 #if (WIRINGPI_LIBRARY)
 #  # use this implementation instead and add the target
 #  # link libraries
@@ -24,6 +24,17 @@ endif (I2C_ENDPOINT_IMPL STREQUAL "wiringpi")
 
 
 
-add_executable(i3cmaster i3c_commhandler.cpp packet.cpp master.cpp
-	i2cendpoint.cpp i3cendpoint.cpp  i3cendpoint_dummy.cpp i2cendpoint_dummy.cpp)
+#add_executable(i3cmaster i3c_commhandler.cpp packet.cpp master.cpp
+#	i2cendpoint.cpp i3cendpoint.cpp  i3cendpoint_dummy.cpp i2cendpoint_dummy.cpp)
+add_executable(i3cmaster 
+master/packet.cpp
+master/i3cendpoint.cpp
+master/i3cendpoint_dummy.cpp
+master/master.cpp
+master/i3c_commhandler.cpp
+sys/i2c/i2cendpoint.cpp
+platform/dummy/i3cendpoint_dummy.cpp
+platform/dummy/i2cendpoint_dummy.cpp
+)
+# platform/rpi/i2cendpoint_wiringpi.cpp
 

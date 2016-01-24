@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// TODO - this should contain the interface to the i3c lib instead of internal structures
+
 enum i3c_packet_state {
         /*
          * Es sind keine Fehler aufgetreten.
@@ -198,7 +200,7 @@ struct i3c_status {
 
 
 //
-/*TODO - entfernen: Umrechnungshilfe DEC => BIN
+/*TODO - entfernen: Umrechnungshilfe
    1	0001
    2	0010
    3	0011
@@ -214,5 +216,4 @@ struct i3c_status {
    D	1101
    E	1110
    F	1111
-
 */

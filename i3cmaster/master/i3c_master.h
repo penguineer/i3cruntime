@@ -1,5 +1,5 @@
 #pragma once
-#include "i3c.h"
+#include "../api/i3c.h"
 /*
  ** i3c Master-related structures
  **
@@ -21,13 +21,3 @@ uint8_t i3c_getstatus (
         uint8_t dst,
         struct i3c_status status
 );
-
-
-
-
-
-// struct frame {
-// 	// amount of packets inside frame
-// 	int length;
-// 	struct packet *packets;
-// } ;

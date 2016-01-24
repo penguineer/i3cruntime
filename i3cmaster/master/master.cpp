@@ -17,7 +17,7 @@
 
 #include <iostream>
 // #include "slave.h"
-#include "i3c_commhandler.h"
+// #include "i3c_commhandler.h"
 
 using namespace std;
 
@@ -25,10 +25,10 @@ int main()
 {
     const char i2cbus[255]="/dev/i2c-1";
     uint8_t address;
+std::cout << "yeah!" << endl;
+//     i3c::i3c_commhandler ch;
+//     ch.init ( i2cbus );
 
-    i3c::i3c_commhandler ch;
-    ch.init ( i2cbus );
 
-
-}
+ }
 

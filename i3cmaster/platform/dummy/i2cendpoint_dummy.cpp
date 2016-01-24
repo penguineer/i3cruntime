@@ -18,7 +18,7 @@
  */
 
 
-#include "i2cendpoint.h"
+#include "../../sys/i2c/i2cendpoint.h"
 
 #include <iostream>
 #include <string>

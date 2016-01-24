@@ -1,7 +1,7 @@
 #pragma once
-#include "i3c.h"
+#include "../api/i3c.h"
 #include <string.h>
-#include "packet.h"
+#include "../master/packet.h"
 
 #include <stdio.h>
 

@@ -20,7 +20,7 @@
 #include <string>
 #include <inttypes.h>
 #include <map>
-#include "i2cendpoint.h"
+#include "../sys/i2c/i2cendpoint.h"
 
 enum endpoint_priority {
   LOW = 0,

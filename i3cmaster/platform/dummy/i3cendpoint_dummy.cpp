@@ -18,7 +18,7 @@
  */
 
 
-#include "i3cendpoint.h"
+#include "../../master/i3cendpoint.h"
 
 #include <iostream>
 #include <string>
