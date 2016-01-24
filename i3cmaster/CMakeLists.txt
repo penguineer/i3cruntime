@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project (I3CMASTER)
 
-set(CMAKE_C_FLAGS "-std=c++14")
+set(CMAKE_CXX_FLAGS "-std=c++14")
 
 ### Check and select the I2C library
 # dummy is the default
