@@ -22,7 +22,7 @@
 #include <map>
 #include "../sys/i2c/i2cendpoint.h"
 #include <memory>
-
+#include "operation.h"
 
 namespace master 
 {
@@ -75,7 +75,7 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-    uint8_t write ( const uint8_t operation, const uint8_t data ) throw ( i2c::I2CEndpointException );
+    uint8_t write ( Operation operation ) throw ( i2c::I2CEndpointException );
     
     //! Read 8 bits of data from a device register.
     /*!

@@ -16,13 +16,14 @@
 
 
 #include "i3cendpoint.h"
-
-namespace master {
+#include "packet.h"
+namespace master
+{
 namespace i3c
 {
 // I3CEndpoint::I3CEndpoint ( const I3CEndpoint& other ) : I3CEndpoint()
 // {
-// 
+//
 // }
 
 uint8_t I3CEndpoint::read ( const int reg ) throw ( i2c::I2CEndpointException )
@@ -30,13 +31,22 @@ uint8_t I3CEndpoint::read ( const int reg ) throw ( i2c::I2CEndpointException )
 // TODO implementieren
 }
 
-uint8_t I3CEndpoint::write ( const uint8_t operation, const uint8_t data ) throw ( i2c::I2CEndpointException )
+uint8_t I3CEndpoint::write ( const uint8_t operation, const uint8_t *data, uint8_t len ) throw ( i2c::I2CEndpointException )
 {
 // TODO implementieren
+
+    // 1. paket aus den daten bauen
+    // 2. paket an den endpoint via i2c übertragen
+    uint16_t pdata;
+    pdata = operation;
+    pdata <<8;
+    pdata = pdata | data;
+
+    m_endpoint->write ( pdata );
 }
 
 
-// I3CEndpoint::I3CEndpoint ( const I3CEndpoint& other ) 
+// I3CEndpoint::I3CEndpoint ( const I3CEndpoint& other )
 // {
 //   // TODO implementieren
 // this->m_bus_priority = other.m_bus_priority;
@@ -44,12 +54,12 @@ uint8_t I3CEndpoint::write ( const uint8_t operation, const uint8_t data ) throw
 // }
 
 // TODO use packetcounter enum
-I3CEndpoint::I3CEndpoint ( i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException ) 
-: m_endpoint(std::move(i2c::I2CEndpoint(address))),
-  m_count(0),m_packetcounter(0) , 
-  m_bus_priority(priority) 
+I3CEndpoint::I3CEndpoint ( i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException )
+: m_endpoint ( std::move ( i2c::I2CEndpoint ( address ) ) ),
+m_count ( 0 ),m_packetcounter ( 0 ) ,
+m_bus_priority ( priority )
 {
-  // TODO implementieren
+    // TODO implementieren
 // //   m_i2c_endpoint = i
 }
 
