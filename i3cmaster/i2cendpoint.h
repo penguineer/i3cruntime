@@ -37,19 +37,33 @@ class I2CAddress
 {
 public:
         //! the range in which I2CAddress-addresses are valid
-        enum range { min = 0, max = 127 };
+        enum class Range { min = 0, max = 127 };
 
         //! create an I2CAddress
         /*!
          * @param address Device address of the I2C peer.
          */
-        I2CAddress ( uint8_t address ) throw ( std::out_of_range );
+        I2CAddress ( const uint8_t address ) throw ( std::out_of_range );
+
+	I2CAddress(const I2CAddress& i2c_address) throw ();
+
+	/*
+	 * Assignment operator is not viable with immutable classes. Use the copy constructor.
+	 */
+	I2CAddress& operator= (I2CAddress arg) = delete;
+
         //! return an uint8_t Representation of the object
-        const uint8_t to_int() const;
+	operator uint8_t() const;
+
         bool operator < ( const I2CAddress i2caddress ) const ;
-// 	I2CAddress() ;
-protected:
-        uint8_t address; //! the i2c address
+
+private:
+	//! Check the range of an address value and throw std::out_of_range if not within Range.
+	void range_check(const uint8_t address) throw (std::out_of_range);
+
+private:
+	//! the i2c address
+        const uint8_t m_address;
 };
 
 //! Exception during I2C communication via an endpoint.

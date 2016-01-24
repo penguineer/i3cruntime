@@ -53,7 +53,7 @@ namespace i3c
      * @throw I2CEndpointException if the endpoint cannot be initialized
      */
     
-    I3CEndpoint ( i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException ) ;
+    I3CEndpoint ( const i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException ) ;
     
     ~I3CEndpoint() throw();
     

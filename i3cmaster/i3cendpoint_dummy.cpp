@@ -45,12 +45,21 @@ namespace {
 namespace i3c {
   
   I3CEndpoint::I3CEndpoint(const i2c::I2CAddress address, enum endpoint_priority priority) throw (i2c::I2CEndpointException)
+    : I2CEndpoint(address)
   {
     count=0;
-    m_address = address;
+
+    /*
+     * This assignment is already done in the I2CEndpoint ctor.
+     * Also, asssignment to an immutable class is not allowed, the call should have been
+     * 		m_address(address)
+     * in the initializer list.
+     */
+    //m_address = address;
+
     m_fd = 1;
     std::stringstream msg("");
-    msg << "I2C dummy device " << m_address.to_int() << " has been set up with fd " << m_fd;
+    msg << "I2C dummy device " << m_address << " has been set up with fd " << m_fd;
     
     ::__dummy_message(msg.str());    
   }
@@ -59,7 +68,7 @@ namespace i3c {
   {
     m_fd = 0;
     std::stringstream msg("");
-    msg << "I2C dummy device " << m_address.to_int() << " has been closed.";
+    msg << "I2C dummy device " << m_address << " has been closed.";
     
     ::__dummy_message(msg.str());
   }
@@ -78,7 +87,7 @@ namespace i3c {
   uint8_t I3CEndpoint::read() throw(i2c::I2CEndpointException)
   {
     std::stringstream msg("");
-    msg << "Please input simple read result (hex) for device 0x" << std::hex << m_address.to_int() << ": ";
+    msg << "Please input simple read result (hex) for device 0x" << std::hex << m_address << ": ";
     return ::__dummy_input(msg.str());
   }
   
@@ -86,7 +95,7 @@ namespace i3c {
   uint8_t I3CEndpoint::write(const uint8_t data) throw(i2c::I2CEndpointException)
   {
     std::stringstream msg("");
-    msg << "Please input simple write result (hex) for device 0x" << std::hex << m_address.to_int()
+    msg << "Please input simple write result (hex) for device 0x" << std::hex << m_address
     << ", written value 0x"  << data << ": ";
     return ::__dummy_input(msg.str());
     

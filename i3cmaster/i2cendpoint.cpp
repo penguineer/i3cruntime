@@ -21,6 +21,7 @@
 #include <string>
 #include <sstream>
 
+
 namespace
 {
 
@@ -40,35 +41,50 @@ int __dummy_input ( const std::string msg )
 }
 }
 
-namespace i2c
-{
-
-
+namespace i2c {
   
-I2CAddress::I2CAddress ( uint8_t address ) throw ( std::out_of_range )
+I2CAddress::I2CAddress ( const uint8_t address ) throw ( std::out_of_range )
+  : m_address(address)
 {
-    if ( ( address >= min ) && ( address <= max ) ) {
-        this->address = address;
-    } else {
-        std::stringstream msg ( "" );
-        msg << "I2C address " << address << " is out of range, must be between 0 and 127!";
-        throw std::out_of_range ( msg.str() );
-    }
+  /*
+   * Check Range and throw exception accordingly
+   */
+  range_check(address);
+}
+
+I2CAddress::I2CAddress(const i2c::I2CAddress& i2c_address) throw ()
+  : m_address(i2c_address.m_address)
+{
+  /*
+   * Range check is not necessary when taking address from an already established instance.
+   */
 }
 
 bool I2CAddress::operator < ( const I2CAddress i2caddress ) const
 {
-    return ( address < i2caddress.address );
+    return m_address < i2caddress.m_address;
 }
 
-const uint8_t I2CAddress::to_int() const
+I2CAddress::operator uint8_t()  const
 {
-    return this->address;
+  return this->m_address;
+}
+
+void I2CAddress::range_check(const uint8_t address) throw (std::out_of_range)
+{
+  /*
+   * Check Range and throw exception accordingly
+   */
+  if ( ( address < (uint8_t)Range::min ) || ( address > (uint8_t)Range::max ) ) {
+    std::stringstream msg ( "" );
+    msg << "I2C address " << address << " is out of range, must be between 0 and 127!";
+    throw std::out_of_range ( msg.str() );
+  }
 }
 
 
 I2CEndpointException::I2CEndpointException ( I2CAddress address, const int error, const std::string& msg )
-    : m_address ( address.to_int() ), m_error ( error ), m_what ( msg ) { }
+    : m_address ( address ), m_error ( error ), m_what ( msg ) { }
 
 I2CEndpointException::~I2CEndpointException() throw() {}
 
@@ -165,7 +181,7 @@ int I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
     uint8_t port, res;
 
 
-    for ( port = I2CAddress::min; port < I2CAddress::max; port++ ) {
+    for ( port = (uint8_t)I2CAddress::Range::min; port < (uint8_t)I2CAddress::Range::max; port++ ) {
         if ( ioctl ( fd, I2C_SLAVE, port ) < 0 ) {
             perror ( "ioctl() I2C_SLAVE failed\n" );
         } else {
