@@ -32,12 +32,11 @@ platform/dummy/i2cendpoint_dummy.cpp
 master/packet.cpp
 sys/i2c/i2caddress.cpp
 sys/i2c/i2cendpoint.cpp
-sys/i2c/i2cendpointbroker.cpp
 sys/i2c/i2cendpointexception.cpp
 master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
 master/i3c_commhandler.cpp
-master/operation.cpp
+#master/operation.cpp
 )
 #
 # platform/rpi/i2cendpoint_wiringpi.cpp
