@@ -1,55 +1,58 @@
+/*
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+
 #include "i3cendpoint.h"
 
-
+namespace master {
 namespace i3c
 {
-  
-I3CEndpointBroker::I3CEndpointBroker()
-    : endpoints()
-{
+// I3CEndpoint::I3CEndpoint ( const I3CEndpoint& other ) : I3CEndpoint()
+// {
+// 
+// }
 
+uint8_t I3CEndpoint::read ( const int reg ) throw ( i2c::I2CEndpointException )
+{
+// TODO implementieren
 }
 
-I3CEndpointBroker::~I3CEndpointBroker() throw()
+uint8_t I3CEndpoint::write ( const uint8_t operation, const uint8_t data ) throw ( i2c::I2CEndpointException )
 {
-    free_all_endpoints();
+// TODO implementieren
 }
 
-I3CEndpoint* I3CEndpointBroker::endpoint ( i2c::I2CAddress address ) throw ( i2c::I2CEndpointException, std::out_of_range )
+
+// I3CEndpoint::I3CEndpoint ( const I3CEndpoint& other ) 
+// {
+//   // TODO implementieren
+// this->m_bus_priority = other.m_bus_priority;
+// this->m_i2c_endpoint = other.m_i2c_endpoint;
+// }
+
+// TODO use packetcounter enum
+I3CEndpoint::I3CEndpoint ( i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException ) 
+: m_endpoint(std::move(i2c::I2CEndpoint(address))),
+  m_count(0),m_packetcounter(0) , 
+  m_bus_priority(priority) 
 {
-    // try to get endpoint from the map
-    endpoint_map::iterator it = endpoints.find ( address );
-
-    if ( it == endpoints.end() ) {
-        // none found, create and setup
-      // TODO obtain priority from config file
-      endpoint_priority priority = MEDIUM;
-        I3CEndpoint* ep = new I3CEndpoint ( address , priority);
-
-        // store
-        std::pair<endpoint_map::iterator, bool> res =
-            endpoints.insert ( endpoint_map::value_type ( address, ep ) );
-
-        // throw an exception if the endpoint could not be stored to the map
-        if ( !res.second ) {
-            delete ep;
-            throw i2c::I2CEndpointException ( address, 0, "Could not store endpoint to broker!" );
-        }
-
-        return ep;
-    }
-
-    return it->second;
+  // TODO implementieren
+// //   m_i2c_endpoint = i
 }
 
-void I3CEndpointBroker::free_all_endpoints() throw()
-{
-    // close all endpoints
-    for ( endpoint_map::iterator it = endpoints.begin(); it != endpoints.end(); it++ ) {
-        I3CEndpoint* ep = it->second;
-        delete ep;
-        endpoints.erase ( it );
-    }
-}
 
+}
 }

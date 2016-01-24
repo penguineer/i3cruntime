@@ -19,10 +19,12 @@
 
 
 #include "../../sys/i2c/i2cendpoint.h"
+#include "../../sys/i2c/i2cendpointexception.h"
 
 #include <iostream>
 #include <string>
 #include <sstream>
+
 
 namespace {
 
@@ -47,7 +49,6 @@ namespace i2c {
 I2CEndpoint::I2CEndpoint(I2CAddress address) throw (I2CEndpointException)
     : m_address(address), m_fd(0)
 {
-  count=0;
     m_fd = 1;
     std::stringstream msg("");
     msg << "I2C dummy device " << address << " has been set up with fd " << m_fd;
@@ -125,6 +126,6 @@ int I2CEndpoint::write_reg_16(const int reg, const int data) throw(I2CEndpointEx
     return ::__dummy_input(msg.str());
 }
 
-} // namespace i2c
+}
 
 // End of File

@@ -41,7 +41,7 @@ namespace {
   
 } // anon namespace
 
-
+namespace master {
 namespace i3c {
   
   I3CEndpoint::I3CEndpoint(const i2c::I2CAddress address, enum endpoint_priority priority) throw (i2c::I2CEndpointException)
@@ -125,7 +125,7 @@ namespace i3c {
     return ::__dummy_input(msg.str());
   }*/
   
-  
+}
 } // namespace xmppsc
 
 // End of File

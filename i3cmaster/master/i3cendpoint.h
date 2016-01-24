@@ -21,18 +21,19 @@
 #include <inttypes.h>
 #include <map>
 #include "../sys/i2c/i2cendpoint.h"
-
-enum endpoint_priority {
-  LOW = 0,
-  MEDIUM = 1,
-  HIGH = 2,
-  REALTIME = 3
-};
+#include <memory>
 
 
+namespace master 
+{
 namespace i3c
 {
-  
+  enum class endpoint_priority {
+    LOW = 0,
+    MEDIUM = 1,
+    HIGH = 2,
+    REALTIME = 3
+  };
   
   //! I3C communication endpoint
   /*!
@@ -41,7 +42,7 @@ namespace i3c
    * This introduces an INT-Line in addition to device priorities
    */
   
-  class I3CEndpoint  : public i2c::I2CEndpoint
+  class I3CEndpoint 
   {
   public:
     
@@ -53,16 +54,11 @@ namespace i3c
      * @throw I2CEndpointException if the endpoint cannot be initialized
      */
     
-    I3CEndpoint ( const i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException ) ;
+    I3CEndpoint ( i2c::I2CAddress address, master::i3c::endpoint_priority priority ) throw ( i2c::I2CEndpointException ) ;
     
     ~I3CEndpoint() throw();
     
-    //! Return the address for this endpoint.
-    /*!
-     * @returns The endpoint device address.
-     */
-//     const i2c::I2CAddress address() const throw();
-    
+   
     //! Simple device read_reg_16
     /*!
      * Some devices present data when you read them without having to do any register transactions.
@@ -79,7 +75,7 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-    uint8_t write ( const uint8_t data ) throw ( i2c::I2CEndpointException );
+    uint8_t write ( const uint8_t operation, const uint8_t data ) throw ( i2c::I2CEndpointException );
     
     //! Read 8 bits of data from a device register.
     /*!
@@ -87,69 +83,27 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-     uint8_t read_reg_8 ( const int reg ) throw ( i2c::I2CEndpointException );
+     uint8_t read ( const int reg ) throw ( i2c::I2CEndpointException );
 
-    //! Write 8 bits of data to a device register.
-    /*!
-     * @param reg The device register.
-     * @param data The data.
-     * @returns Result from the I2C call.
-     * @throws I2CEndpointException if access to the I2C device fails.
-     */
-     int write_reg_8 ( const int reg, const int data ) throw ( i2c::I2CEndpointException );
+  
 
   protected:
     int _fd() const throw();
-//     const i2c::I2CAddress m_address;
-//     int m_fd;
-//     
+
   private:
     // No Copies of this instance!
     // (Not implemented and never to be called.)
     I3CEndpoint ( const I3CEndpoint& other );
+    //! Write 8 bits of data to a device register.
     
-    int count;
-    int packetcounter;
+//     const i2c::I2CEndpoint *m_endpoint;
+    std::unique_ptr<i2c::I2CEndpoint> m_endpoint;
     
-//     const i2c::I2CAddress m_address;
-//    int m_fd;
-    
-    // never to be called
-    //! Write 16 bits of data to a device register.
-    /*!
-     * @param reg The device register.
-     * @param data The data.
-     * @returns Result from the I2C call.
-     * @throws I2CEndpointException if access to the I2C device fails.
-     */
-         int write_reg_16 ( const int reg, const int data ) throw ( i2c::I2CEndpointException );
-	
-	 //! Read 16 bits of data from a device register.
-	 /*!
-	  * @param reg The device register.
-	  * @returns Result from the I2C call.
-	  * @throws I2CEndpointException if access to the I2C device fails.
-	  */
-	 int read_reg_16 ( const int reg ) throw ( i2c::I2CEndpointException );
-	 
+    int m_count; // this is increased if the device was the one to have activated the INT-Line 
+    int m_packetcounter; // packet counter
+    endpoint_priority m_bus_priority; // this together with count defines the order of polling when INT is active
   };
-//! this will implement i3c on top of i2c
-class I3CEndpointBroker
-{
-public:
-  //! Create an I3C broker instance.
-  I3CEndpointBroker();
-  
-  //! Clean-up the instance and clean-up/remove all existing I2C endpoints.
-  ~I3CEndpointBroker() throw();
-  
-  //! Create (if necessary) and return an I2C endpoint for the specified address.
-  I3CEndpoint* endpoint ( i2c::I2CAddress address ) throw ( i2c::I2CEndpointException, std::out_of_range );
-  
-private:
-  typedef std::map<i2c::I2CAddress, I3CEndpoint*> endpoint_map;
-  endpoint_map endpoints;
-  void free_all_endpoints() throw();
-};
+
+}
 }
 #endif

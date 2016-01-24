@@ -7,7 +7,7 @@
 
 #include "i3cendpoint.h"
 #include <sys/stat.h>
-
+namespace master {
 namespace i3c {
 
 
@@ -42,5 +42,5 @@ private:
         bool packet_isvalid ( packet p );
         void scan_i2c_bus();
 };
-
-};
+}
+}
