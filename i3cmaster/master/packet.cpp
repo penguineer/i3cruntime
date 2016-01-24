@@ -7,7 +7,7 @@ void packet::create ( uint8_t data, uint8_t destination, int pc, i3c_packet_stat
   meta = meta <<2;
   meta = meta | st;
   meta = meta <<5;
-  meta = meta | ( 0x1F & crc ( data,meta ) );
+  meta = meta | ( 0x1F & 0x22); // crc ( data,meta ) );
   this->meta = meta;
   this->destination = destination;
   this->status = st;

@@ -29,7 +29,7 @@ I2CEndpoint::~I2CEndpoint()
 }
 
 
-const I2CAddress I2CEndpoint::address() const
+const I2CAddress I2CEndpoint::address() const throw ()
 {
   return m_address;
 }
