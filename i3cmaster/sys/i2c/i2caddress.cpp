@@ -15,13 +15,20 @@
 
 
 
+#include <string>
+#include <sstream>
+
 #include "i2caddress.h"
 
-namespace i2c 
-{
+
+
+namespace i3c {
+namespace sys {
+namespace i2c {
+
 
 I2CAddress::I2CAddress ( const uint8_t address ) throw ( std::out_of_range )
-: m_address(address)
+  : m_address(address)
 {
   /*
    * Check Range and throw exception accordingly
@@ -30,7 +37,7 @@ I2CAddress::I2CAddress ( const uint8_t address ) throw ( std::out_of_range )
 }
 
 I2CAddress::I2CAddress(const i2c::I2CAddress& i2c_address) throw ()
-: m_address(i2c_address.m_address)
+  : m_address(i2c_address.m_address)
 {
   /*
    * Range check is not necessary when taking address from an already established instance.
@@ -38,7 +45,7 @@ I2CAddress::I2CAddress(const i2c::I2CAddress& i2c_address) throw ()
 }
 
 I2CAddress::I2CAddress(const I2CAddress&& i2c_address) throw ()
-: m_address(std::move(i2c_address.m_address))
+  : m_address(std::move(i2c_address.m_address))
 {
   /*
    * Range check is not necessary when taking address from an already established instance.
@@ -48,7 +55,7 @@ I2CAddress::I2CAddress(const I2CAddress&& i2c_address) throw ()
 
 bool I2CAddress::operator < ( const I2CAddress i2caddress ) const
 {
-  return m_address < i2caddress.m_address;
+    return m_address < i2caddress.m_address;
 }
 
 I2CAddress::operator uint8_t()  const
@@ -67,4 +74,7 @@ void I2CAddress::range_check(const uint8_t address) throw (std::out_of_range)
     throw std::out_of_range ( msg.str() );
   }
 }
-}
+
+} // namespace i2c
+} // namespace sys
+} // namespace i3c
