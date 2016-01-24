@@ -47,6 +47,8 @@ public:
         I2CAddress ( const uint8_t address ) throw ( std::out_of_range );
 
 	I2CAddress(const I2CAddress& i2c_address) throw ();
+	
+	I2CAddress(const I2CAddress&& i2c_address) throw ();
 
 	/*
 	 * Assignment operator is not viable with immutable classes. Use the copy constructor.
@@ -228,7 +230,7 @@ public:
 private:
         typedef std::map<I2CAddress, I2CEndpoint*> endpoint_map;
         endpoint_map endpoints;
-        std::vector< I2CAddress > scan_i2c_bus ( const char* bus ) const throw();
+        std::vector< I2CAddress >&& scan_i2c_bus ( const char* bus ) const throw();
         void free_all_endpoints() throw();
 };
 

@@ -60,6 +60,15 @@ I2CAddress::I2CAddress(const i2c::I2CAddress& i2c_address) throw ()
    */
 }
 
+I2CAddress::I2CAddress(const I2CAddress&& i2c_address) throw ()
+  : m_address(std::move(i2c_address.m_address))
+{
+  /*
+   * Range check is not necessary when taking address from an already established instance.
+   */
+}
+
+
 bool I2CAddress::operator < ( const I2CAddress i2caddress ) const
 {
     return m_address < i2caddress.m_address;
@@ -153,7 +162,7 @@ void I2CEndpointBroker::free_all_endpoints() throw()
 }
 
 /* Suche nach I2C-Adressen */
-std::vector<I2CAddress> I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
+std::vector<I2CAddress>&& I2CEndpointBroker::scan_i2c_bus ( const char *bus ) const throw()
 {
     std::vector<I2CAddress> addresses;
 
@@ -162,14 +171,14 @@ std::vector<I2CAddress> I2CEndpointBroker::scan_i2c_bus ( const char *bus ) cons
     if ( ( fd = open ( bus, O_RDWR ) ) < 0 ) {
         perror ( "Failed to open the i2c bus\n" );
 	// TODO throw an exception
-        return ( addresses );
+    return std::move(addresses);
     }
 
     /* Abfragen, ob die I2C-Funktionen da sind */
     if ( ioctl ( fd ,I2C_FUNCS,&funcs ) < 0 ) {
         perror ( "ioctl() I2C_FUNCS failed" );
 	// TODO throw an exception
-        return ( addresses );
+    return std::move(addresses);
     }
     /* Ergebnis untersuchen */
     if ( funcs & I2C_FUNC_I2C ) {
@@ -203,7 +212,7 @@ std::vector<I2CAddress> I2CEndpointBroker::scan_i2c_bus ( const char *bus ) cons
     }
     close ( fd );
 
-    return addresses;
+    return std::move(addresses);
 }
 
 } // namespace xmppsc
