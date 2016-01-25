@@ -7,6 +7,7 @@
 
 #include "i3cendpoint.h"
 #include <sys/stat.h>
+using namespace i3c::sys::i2c;
 namespace master {
 namespace i3c {
 
@@ -25,7 +26,7 @@ public:
 
         uint8_t                         // Rückgabewert m. Fehlercode
         i3c_send (
-                i2c::I2CAddress dst,            // I²C-Adresse
+                I2CAddress dst,            // I²C-Adresse
                 uint8_t opcode,         // I3C-OpCode
                 uint8_t *params,        // dazu passende Parameter
                 uint8_t par_count,      // Anzahl der Parameterpakete
@@ -38,7 +39,7 @@ private:
         int devicedescriptor;
         char devicename[255];
         int packetcounter;
-	I3CEndpointBroker* epb;
+	// I3CEndpointBroker* epb;
         bool packet_isvalid ( packet p );
         void scan_i2c_bus();
 };

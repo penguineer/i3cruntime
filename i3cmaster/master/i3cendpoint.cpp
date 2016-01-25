@@ -26,23 +26,18 @@ namespace i3c
 //
 // }
 
-uint8_t I3CEndpoint::read ( const int reg ) throw ( i2c::I2CEndpointException )
+uint8_t I3CEndpoint::read ( const int reg ) throw ( I2CEndpointException )
 {
 // TODO implementieren
 }
 
-uint8_t I3CEndpoint::write ( const uint8_t operation, const uint8_t *data, uint8_t len ) throw ( i2c::I2CEndpointException )
+uint8_t I3CEndpoint::write ( Operation operation ) throw ( I2CEndpointException )
 {
 // TODO implementieren
 
     // 1. paket aus den daten bauen
     // 2. paket an den endpoint via i2c übertragen
-    uint16_t pdata;
-    pdata = operation;
-    pdata <<8;
-    pdata = pdata | data;
 
-    m_endpoint->write ( pdata );
 }
 
 
@@ -54,8 +49,8 @@ uint8_t I3CEndpoint::write ( const uint8_t operation, const uint8_t *data, uint8
 // }
 
 // TODO use packetcounter enum
-I3CEndpoint::I3CEndpoint ( i2c::I2CAddress address, enum endpoint_priority priority ) throw ( i2c::I2CEndpointException )
-: m_endpoint ( std::move ( i2c::I2CEndpoint ( address ) ) ),
+I3CEndpoint::I3CEndpoint ( I2CAddress address, enum endpoint_priority priority ) throw ( I2CEndpointException )
+: m_address(address),
 m_count ( 0 ),m_packetcounter ( 0 ) ,
 m_bus_priority ( priority )
 {

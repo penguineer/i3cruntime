@@ -22,8 +22,8 @@
 #include <map>
 #include "../sys/i2c/i2cendpoint.h"
 #include <memory>
-// #include "operation.h"
-
+#include "operation.h"
+using namespace i3c::sys::i2c;
 namespace master 
 {
 namespace i3c
@@ -54,7 +54,7 @@ namespace i3c
      * @throw I2CEndpointException if the endpoint cannot be initialized
      */
     
-    I3CEndpoint ( i2c::I2CAddress address, master::i3c::endpoint_priority priority ) throw ( i2c::I2CEndpointException ) ;
+    I3CEndpoint ( I2CAddress address, endpoint_priority priority ) throw ( I2CEndpointException ) ;
     
     ~I3CEndpoint() throw();
     
@@ -66,7 +66,7 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws i2c::I2CEndpointException if access to the I2C device fails.
      */
-    uint8_t read() throw ( i2c::I2CEndpointException );
+    uint8_t read() throw ( I2CEndpointException );
     //! Simple device write.
     /*!
      * Some devices accept data this way without needing to access any internal registers.
@@ -75,7 +75,7 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-    uint8_t write ( Operation operation ) throw ( i2c::I2CEndpointException );
+    uint8_t write ( Operation operation ) throw ( I2CEndpointException );
     
     //! Read 8 bits of data from a device register.
     /*!
@@ -83,7 +83,7 @@ namespace i3c
      * @returns Result from the I2C call.
      * @throws I2CEndpointException if access to the I2C device fails.
      */
-     uint8_t read ( const int reg ) throw ( i2c::I2CEndpointException );
+     uint8_t read ( const int reg ) throw ( I2CEndpointException );
 
   
 
@@ -97,7 +97,7 @@ namespace i3c
     //! Write 8 bits of data to a device register.
     
 //     const i2c::I2CEndpoint *m_endpoint;
-    std::unique_ptr<i2c::I2CEndpoint> m_endpoint;
+   const I2CAddress m_address;
     
     int m_count; // this is increased if the device was the one to have activated the INT-Line 
     int m_packetcounter; // packet counter
