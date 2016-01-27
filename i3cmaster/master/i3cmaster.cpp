@@ -28,6 +28,8 @@ int main()
 std::cout << "yeah!" << endl;
 //     i3c::i3c_commhandler ch;
 //     ch.init ( i2cbus );
+// TODO i2c entfernen.
+// TODO i2server-socket zum abgeben der Daten nutzen.
 
 
  }

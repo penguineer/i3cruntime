@@ -44,13 +44,15 @@ uint8_t I3CEndpoint::write ( Operation operation ) throw ( I2CEndpointException 
 // I3CEndpoint::I3CEndpoint ( const I3CEndpoint& other )
 // {
 //   // TODO implementieren
-// this->m_bus_priority = other.m_bus_priority;
+// this->m_bus_priority atu= other.m_bus_priority;
 // this->m_i2c_endpoint = other.m_i2c_endpoint;
 // }
 
 // TODO use packetcounter enum
 I3CEndpoint::I3CEndpoint ( I2CAddress address, enum endpoint_priority priority ) throw ( I2CEndpointException )
-: m_address(address),
+: m_address(
+
+address),
 m_count ( 0 ),m_packetcounter ( 0 ) ,
 m_bus_priority ( priority )
 {

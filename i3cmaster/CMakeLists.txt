@@ -15,7 +15,7 @@ set(I2C_ENDPOINT_IMPL "dummy")
 #  set(I2C_ENDPOINT_IMPL "wiringpi")
 #endif(WIRINGPI_LIBRARY)
 
-# if wiringPi has been included
+# if wiringPi has been includedr
 if (I2C_ENDPOINT_IMPL STREQUAL "wiringpi")
   # add link targets for the wiringPi libraries
   # WIRINGPI_LIBRARY has already been checked before
@@ -26,8 +26,8 @@ endif (I2C_ENDPOINT_IMPL STREQUAL "wiringpi")
 
 #add_executable(i3cmaster i3c_commhandler.cpp packet.cpp master.cpp
 #	i2cendpoint.cpp i3cendpoint.cpp  i3cendpoint_dummy.cpp i2cendpoint_dummy.cpp)
-add_executable(i3cmaster 
-master/master.cpp
+add_executable(i3cmaster
+master/i3cmaster.cpp
 platform/dummy/i2cendpoint_dummy.cpp
 master/packet.cpp
 sys/i2c/i2caddress.cpp
@@ -37,6 +37,10 @@ master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
 #master/i3c_commhandler.cpp
 master/operation.cpp
+)
+
+add_executable(i2cmaster
+master/i2cmaster.cpp
 )
 #
 # platform/rpi/i2cendpoint_wiringpi.cpp
