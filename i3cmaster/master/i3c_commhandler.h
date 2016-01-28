@@ -40,7 +40,7 @@ private:
         char devicename[255];
         int packetcounter;
 	// I3CEndpointBroker* epb;
-        bool packet_isvalid ( packet p );
+        bool packet_isvalid ( i3cpacket p );
         void scan_i2c_bus();
 };
 }

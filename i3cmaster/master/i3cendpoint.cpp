@@ -16,7 +16,7 @@
 
 
 #include "i3cendpoint.h"
-#include "packet.h"
+#include "i3cpacket.h"
 namespace master
 {
 namespace i3c

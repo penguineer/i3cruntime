@@ -20,6 +20,7 @@ public:
     SDDESC = 9  //    set Device-Descriptor (except I2C-Address)
     // 10-15  RESERVIERT
   };
+  
   Operation(uint8_t operation, std::vector<uint8_t> params) ;
 private:
   const uint8_t operation;
