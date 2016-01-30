@@ -1,7 +1,8 @@
 #include "i3c_commhandler.h"
-
+using namespace i3c::sys::i2c;
+namespace master {
 namespace i3c {
-uint8_t i3c_commhandler::i3c_send ( ::i2c::I2CAddress dst, uint8_t opcode, uint8_t* params, uint8_t par_count, uint8_t** response, uint8_t res_count )
+uint8_t i3c_commhandler::i3c_send ( I2CAddress dst, uint8_t opcode, uint8_t* params, uint8_t par_count, uint8_t** response, uint8_t res_count )
 {
 
 }
@@ -12,7 +13,8 @@ void i3c_commhandler::scan_i2c_bus()
   int port, res;
 // I2CAddress::Range::max
   /* Adressbereich 7 Bit */
-  for (port = ::i2c::I2CAddress::Range::min;  port < i2c::I2CAddressRange::max; port++)
+  int device = open(devicename, O_RDWR);
+  for (port = (uint8_t) I2CAddress::Range::min;  port < (uint8_t)I2CAddress::Range::max; port++)
   {
     if (ioctl(device, I2C_SLAVE, port) < 0)
       perror("ioctl() I2C_SLAVE failed\n");
@@ -28,7 +30,7 @@ void i3c_commhandler::scan_i2c_bus()
 int i3c_commhandler::init(const char *i2cdevice) {
   int fd;
 
-  epb = new I3CEndpointBroker();
+//   I3CEndpointBroker epb = new I3CEndpointBroker();
  
 }
 
@@ -44,4 +46,5 @@ uint8_t i3c_getstatus (
   return ( 0 );
 }
 
+}
 }

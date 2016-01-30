@@ -7,7 +7,18 @@
 
 #include "i3cendpoint.h"
 #include <sys/stat.h>
-using namespace i3c::sys::i2c;
+
+
+// i2c-stuff
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+// using namespace i3c::sys::i2c;
 namespace master {
 namespace i3c {
 
@@ -33,8 +44,6 @@ public:
                 uint8_t **response,     // Ziel-Array für die Antwort
                 uint8_t res_count       // Anzahl der Antwortpakete
         );
-
-	uint8_t i3c_commhandler::i3c_send ( i2c::I2CAddress dst, uint8_t opcode, uint8_t* params, uint8_t par_count, uint8_t** response, uint8_t res_count );
 
 private:
 //   enum endpoint_priority priority;
