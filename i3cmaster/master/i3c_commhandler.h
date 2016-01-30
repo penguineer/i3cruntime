@@ -1,7 +1,7 @@
 #pragma once
 #include "../api/i3c.h"
 #include <string.h>
-#include "../master/packet.h"
+#include "../master/i3cpacket.h"
 
 #include <stdio.h>
 
@@ -33,6 +33,8 @@ public:
                 uint8_t **response,     // Ziel-Array für die Antwort
                 uint8_t res_count       // Anzahl der Antwortpakete
         );
+
+	uint8_t i3c_commhandler::i3c_send ( i2c::I2CAddress dst, uint8_t opcode, uint8_t* params, uint8_t par_count, uint8_t** response, uint8_t res_count );
 
 private:
 //   enum endpoint_priority priority;
