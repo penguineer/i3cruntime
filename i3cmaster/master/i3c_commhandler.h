@@ -8,8 +8,9 @@
 #include "i3cendpoint.h"
 #include <sys/stat.h>
 using namespace i3c::sys::i2c;
-namespace master {
+
 namespace i3c {
+namespace master {
 
 
 class i3c_commhandler
@@ -34,8 +35,6 @@ public:
                 uint8_t res_count       // Anzahl der Antwortpakete
         );
 
-	uint8_t i3c_commhandler::i3c_send ( i2c::I2CAddress dst, uint8_t opcode, uint8_t* params, uint8_t par_count, uint8_t** response, uint8_t res_count );
-
 private:
 //   enum endpoint_priority priority;
         int devicedescriptor;
@@ -43,7 +42,8 @@ private:
         int packetcounter;
 	// I3CEndpointBroker* epb;
         bool packet_isvalid ( i3cpacket p );
-        void scan_i2c_bus();
 };
-}
-}
+
+
+} // master
+} // i3c
