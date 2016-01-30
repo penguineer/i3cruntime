@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "../api/i3c.h"
-
+#include <iostream>
 
 
 class i3cpacket
@@ -31,7 +31,7 @@ public:
 	//! check if the package contains a valid crc
 	bool isvalid ();
 	void tostr();
-	friend ostream& operator<<(ostream &out, i3cpacket &packet);
+	friend std::ostream& operator<<(std::ostream &out, i3cpacket &packet);
 
 private:
 	uint8_t CRC5x12(uint8_t crc, uint8_t data);

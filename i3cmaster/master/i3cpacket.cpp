@@ -49,7 +49,7 @@ void i3cpacket::tostr(){
   std::cout << "destination: " << std::hex << unsigned (destination)  << "(" << bdest << ") metadata: "  << unsigned(meta) << " (" << bmeta << ") data: " << unsigned(data) << "(" << bdata  << ")" << std::endl;
 }
 
-ostream& i3cpacket::operator<< (ostream &out, i3cpacket &packet){
+std::ostream& i3cpacket::operator<< (std::ostream &out, i3cpacket &packet){
 //   std::bitset<8> bdest(destination);
 //   std::bitset<8> bmeta(meta);
 //   std::bitset<8> bdata(data);
