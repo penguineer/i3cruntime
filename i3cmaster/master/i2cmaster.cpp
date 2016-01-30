@@ -60,14 +60,9 @@ int main()
     i3cpacket p;
     uint8_t destination = 0x21;
     uint8_t data = 0xaa;
-    p.create ( data ,destination, EVEN, ST_START );
-    
-uint8_t in = 0xaa;
+    p.create ( data ,destination, ODD, ST_START );
 
-// cout << hextobin(0xe8) << endl;
-
-    p.tostr ();
-
+    cout << p << endl;
 //  //   printf ( "%s\n", result);
 //     std::priority_queue<int> q;
 //

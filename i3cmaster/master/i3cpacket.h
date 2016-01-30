@@ -30,12 +30,12 @@ public:
 
 	//! check if the package contains a valid crc
 	bool isvalid ();
-	void tostr();
+
 	friend std::ostream& operator<<(std::ostream &out, i3cpacket &packet);
+
 
 private:
 	uint8_t CRC5x12(uint8_t crc, uint8_t data);
 };
-
 
 
