@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.9)
 
-project (I3CMASTER)
+project (I3CMASTER CXX)
 
 set(CMAKE_CXX_FLAGS "-std=c++14")
 
@@ -31,8 +31,10 @@ debug.cpp
 master/i3cmaster.cpp
 platform/dummy/i2cendpoint_dummy.cpp
 master/i3cpacket.cpp
+sys/i2c/i2cpacket.cpp
 sys/i2c/i2caddress.cpp
 sys/i2c/i2cendpoint.cpp
+sys/i2c/i2cdispatcher.cpp
 sys/i2c/i2cendpointexception.cpp
 master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
@@ -44,6 +46,8 @@ add_executable(i2cmaster
 debug.cpp
 master/i2cmaster.cpp
 platform/dummy/i2cendpoint_dummy.cpp
+sys/i2c/i2cpacket.cpp
+sys/i2c/i2cdispatcher.cpp
 master/i3cpacket.cpp
 sys/i2c/i2caddress.cpp
 sys/i2c/i2cendpoint.cpp
