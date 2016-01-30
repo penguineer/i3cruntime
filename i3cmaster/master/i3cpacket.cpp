@@ -17,14 +17,18 @@ void i3cpacket::create ( uint8_t data, uint8_t destination, enum packetcounter p
     this->meta = meta;
     this->destination = destination;
     this->status = st;
+    this->data = data;
 
     crc = CRC5x12(crc, 0xaf);
     crc = CRC5x12(crc, 0xfe);
 
 }
 #include <stdio.h>
-#include "../debug.h"
-
+// #include "../debug.h"
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <bitset>
 void i3cpacket::interpret ( uint8_t data, uint8_t metadata )
 {
     this->data = data;
@@ -38,8 +42,19 @@ void i3cpacket::interpret ( uint8_t data, uint8_t metadata )
     crc = (uint8_t)(0x00011111 & metadata);
 }
 
-void i3cpacket::tostr(char *result){
-  snprintf(result, 500, "destination: %hhx (%s), metadata: %hhx (%s), data: %hhx (%s)", destination, hextobin(destination), meta,hextobin(meta), data,  hextobin(data)  );
+void i3cpacket::tostr(){
+  std::bitset<8> bdest(destination);
+  std::bitset<8> bmeta(meta);
+  std::bitset<8> bdata(data);
+  std::cout << "destination: " << std::hex << unsigned (destination)  << "(" << bdest << ") metadata: "  << unsigned(meta) << " (" << bmeta << ") data: " << unsigned(data) << "(" << bdata  << ")" << std::endl;
+}
+
+ostream& i3cpacket::operator<< (ostream &out, i3cpacket &packet){
+//   std::bitset<8> bdest(destination);
+//   std::bitset<8> bmeta(meta);
+//   std::bitset<8> bdata(data);
+//   std::cout << "destination: " << std::hex << unsigned (destination)  << "(" << bdest << ") metadata: "  << unsigned(meta) << " (" << bmeta << ") data: " << unsigned(data) << "(" << bdata  << ")" << std::endl;
+  return &out;
 }
 /**
  * Calculate a 5-bit CRC based on the generator polynom 0x12 (see definition of POLYNOMIAL).

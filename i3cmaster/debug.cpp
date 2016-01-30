@@ -1,8 +1,7 @@
-#include <stdio.h>      /* printf */
 #include <string.h>     /* strcat */
-#include <stdlib.h>     /* strtol */
 #include "debug.h"
 
+#include <string>
 const char* hextobin(uint8_t x)
 {
   static char b[9];

@@ -28,7 +28,12 @@
 #include <iostream>
 #include "operation.h"
 #include "../api/i3c.h"
+
+#include <libconfig.h++>
+
 using namespace std;
+
+
 
 template<typename T> void print_queue ( T& q )
 {
@@ -55,31 +60,32 @@ int main()
     i3cpacket p;
     uint8_t destination = 0x21;
     uint8_t data = 0xaa;
-    p.create ( data ,destination, ODD, ST_START );
-    char result[500];
+    p.create ( data ,destination, EVEN, ST_START );
+    
 uint8_t in = 0xaa;
 
+// cout << hextobin(0xe8) << endl;
 
-    p.tostr ( result );
+    p.tostr ();
 
-    printf ( "%s\n", result);
-    std::priority_queue<int> q;
-
-    for ( int n : {
-                1,8,5,6,3,4,0,9,3,2
-            } )
-        q.push ( n );
-
-    print_queue ( q );
-
-
-
-    std::priority_queue<int, std::vector<int>, std::greater<int> > q2;
-
-    for ( int n : {
-                1,8,5,6,3,4,0,9,3,2
-            } )
-        q2.push ( n );
-
-    print_queue ( q2 );
+//  //   printf ( "%s\n", result);
+//     std::priority_queue<int> q;
+//
+//     for ( int n : {
+//                 1,8,5,6,3,4,0,9,3,2
+//             } )
+//         q.push ( n );
+//
+//     print_queue ( q );
+//
+//
+//
+//     std::priority_queue<int, std::vector<int>, std::greater<int> > q2;
+//
+//     for ( int n : {
+//                 1,8,5,6,3,4,0,9,3,2
+//             } )
+//         q2.push ( n );
+//
+//     print_queue ( q2 );
 }
