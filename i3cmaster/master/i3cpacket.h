@@ -8,7 +8,6 @@
 #include "../sys/i2c/i2cpacket.h"
 
 using namespace i3c::sys::i2c;
-//! store an i3c packet
 class I3CPacket
 {
 
