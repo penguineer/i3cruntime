@@ -27,18 +27,13 @@ uint8_t I3CPacket::getMeta() const
 
 #include <sstream>
 
-inline uint8_t data2meta(const uint16_t data)
-{
-  return (uint8_t)( data >> 8 );
-}
 
 I3CPacket::I3CPacket ( const I2CAddress source, const uint16_t data ) throw ( std::runtime_error )
 : m_data( (uint8_t)( data & 0x00FF ) ),
   m_destination(source),
-  // TODO the data2meta calls can be avoided by using combined calculations, see comments behint initializer
-  m_packetcount( static_cast<packetcounter>(data2meta(data) >> 7) ), // data >> 15
-  m_status( static_cast<i3c_packet_state> ((data2meta(data) & 0x60) >> 5) ), // (data & 0x600) >> 13
-  m_crc( ( data2meta(data) & 0x1f ) ) // (data & 0x1f00) >> 8
+  m_packetcount( static_cast<packetcounter>(data>> 15) ),
+  m_status( static_cast<i3c_packet_state>((data & 0x6000) >> 13)),
+  m_crc( (data & 0x1f00) >>8 )
 {
     // TODO should the members be set to 0 if an exception is raised?
     // Tux: I would not raise the exception here. isValid tells if the packet is fine.
