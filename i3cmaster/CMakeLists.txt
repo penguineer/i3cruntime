@@ -18,6 +18,7 @@ endif(WIRINGPI_LIBRARY)
 
 # do we have libconfig++ ?
 find_library(CONFIG_LIBRARIES NAMES config++)
+find_library(CONFIG_LIBRARIES NAMES pthread)
 
 add_executable(i3cmaster
 debug.cpp
@@ -30,7 +31,7 @@ sys/i2c/i2cendpoint.cpp
 sys/i2c/i2cdispatcher.cpp
 sys/i2c/i2cendpointexception.cpp
 master/i3cendpoint.cpp
-master/i3cendpointbroker.cpp
+sys/i2c/i2cendpointbroker.cpp
 #master/i3c_commhandler.cpp
 master/operation.cpp
 ${WIRINGPI_FILES}
@@ -45,6 +46,7 @@ sys/i2c/i2cdispatcher.cpp
 master/i3cpacket.cpp
 sys/i2c/i2caddress.cpp
 sys/i2c/i2cendpoint.cpp
+sys/i2c/i2cendpointbroker.cpp
 sys/i2c/i2cendpointexception.cpp
 master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
