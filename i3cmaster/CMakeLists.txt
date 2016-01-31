@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "-std=c++14")
 
 # do we have wiringPi?
 find_library(WIRINGPI_LIBRARY NAMES wiringPi wiringPiDev)
-find_library(LIBCONFIG_LIBRARIES NAMES libconfig libconfig++)
+find_library(LIBCONFIG_LIBRARY NAMES libconfig libconfig++)
 
 add_executable(i3cmaster
 debug.cpp
@@ -38,7 +38,7 @@ if (WIRINGPI_LIBRARY)
 endif(WIRINGPI_LIBRARY)
 
 if (LIBCONFIG_LIBRARIES)
-	target_link_libraries(i2cmaster ${LIBCONFIG_LIBRARIES})
+	target_link_libraries(i2cmaster ${LIBCONFIG_LIBRARY})
 endif(LIBCONFIG_LIBRARIES)
 
 add_executable(i2cmaster

@@ -94,6 +94,7 @@ std::vector< I2CAddress >&& WiringPiI2CEndpointBroker::scan() throw (I2CEndpoint
       // try to read device
       uint8_t res = wiringPiI2CRead(device);
 
+      // TODO check if the list of devices matches the configuration file
       // if successful, add to slaves list
       if (res >= 0)
 	slaves.push_back(I2CAddress(res));
