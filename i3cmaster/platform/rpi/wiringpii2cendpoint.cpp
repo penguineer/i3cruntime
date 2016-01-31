@@ -61,51 +61,51 @@ WiringPiI2CEndpoint::~WiringPiI2CEndpoint() throw()
 }
 
 #define I2C_EXC(MSG) \
-    if (res < 0) { \
-        throw I2CEndpointException(address(), errno, \
-            (MSG)); \
-    }
+    if (res < 0) \
+        throw I2CEndpointException(address(), errno, (MSG));
 
-uint8_t WiringPiI2CEndpoint::read() throw ( I2CEndpointException )
+I2CPacket&& WiringPiI2CEndpoint::process(const I2CPacket request) throw (I2CEndpointException)
 {
-  const int res = wiringPiI2CRead(m_fd);
-  I2C_EXC("Error on simple I2C read!");
-  return res;
-}
+  int res = -1;
 
-uint16_t WiringPiI2CEndpoint::write ( const uint16_t data ) throw ( I2CEndpointException )
-{
-  const uint16_t res = wiringPiI2CWrite(m_fd, data);
-  I2C_EXC("Error on simple I2C write!");
-  return res;
-}
+  switch (request.op()) {
 
-uint16_t WiringPiI2CEndpoint::read_reg_8(const uint8_t reg) throw ( I2CEndpointException )
-{
-  const int res = wiringPiI2CReadReg8(m_fd, reg);
-  I2C_EXC("Error on I2C 8-bit read!");
-  return res;
-}
+    case (I2COperation::READ_SIMPLE): {
+      res = wiringPiI2CRead(m_fd);
+      I2C_EXC("Error on simple I2C write!");
+    }; break;
 
-uint16_t WiringPiI2CEndpoint::read_reg_16(const uint8_t reg) throw ( I2CEndpointException )
-{
-  const int res = wiringPiI2CReadReg16(m_fd, reg);
-  I2C_EXC("Error on I2C 16-bit read!");
-  return res;
-}
+    case (I2COperation::WRITE_SIMPLE): {
+      res = wiringPiI2CWrite(m_fd, request.data());
+      I2C_EXC("Error on simple I2C write!");
+    }; break;
 
-uint16_t WiringPiI2CEndpoint::write_reg_8(const uint8_t reg, const uint8_t data) throw ( I2CEndpointException )
-{
-  const int res = wiringPiI2CWriteReg8(m_fd, reg, data);
-  I2C_EXC("Error on I2C 8-bit write!");
-  return res;
-}
+    case (I2COperation::READ_REG_8): {
+      res = wiringPiI2CReadReg8(m_fd, request.reg());
+      I2C_EXC("Error on I2C 8-bit read!");
+    }; break;
 
-uint16_t WiringPiI2CEndpoint::write_reg_16(const uint8_t reg, const uint16_t data) throw ( I2CEndpointException )
-{
-  const int res = wiringPiI2CWriteReg16(m_fd, reg, data);
-  I2C_EXC("Error on I2C 16-bit write!");
-  return res;
+    case (I2COperation::READ_REG_16): {
+      res = wiringPiI2CReadReg16(m_fd, request.reg());
+      I2C_EXC("Error on I2C 16-bit read!");
+    }; break;
+
+    case (I2COperation::WRITE_REG_8): {
+      res = wiringPiI2CWriteReg8(m_fd, request.reg(), request.data());
+      I2C_EXC("Error on I2C 8-bit write!");
+    }; break;
+
+    case (I2COperation::WRITE_REG_16): {
+      res = wiringPiI2CWriteReg16(m_fd, request.reg(), request.data());
+      I2C_EXC("Error on I2C 16-bit write!");
+    }; break;
+
+  } // switch
+
+  // should not come here with a negative result
+  I2C_EXC("Unexpected error during I2C operation");
+
+  return std::move(I2CPacket(request, (uint16_t)res));
 }
 
 } // namespace rpi

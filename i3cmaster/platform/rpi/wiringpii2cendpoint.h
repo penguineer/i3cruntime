@@ -40,58 +40,8 @@ public:
 
   virtual ~WiringPiI2CEndpoint() throw();
 
-  //! Simple device read_reg_16
-  /*!
-    * Some devices present data when you read them without having to do any register transactions.
-    *
-    * @returns Result from the I2C call.
-    * @throws I2CEndpointException if access to the I2C device fails.
-    */
-  virtual uint8_t read() throw (I2CEndpointException);
-
-  //! Simple device write.
-  /*!
-    * Some devices accept data this way without needing to access any internal registers.
-    *
-    * @param data The data to be written.
-    * @returns Result from the I2C call.
-    * @throws I2CEndpointException if access to the I2C device fails.
-    */
-  virtual uint16_t write ( const uint16_t data ) throw ( I2CEndpointException );
-
-  //! Read 8 bits of data from a device register.
-  /*!
-    * @param reg The device register.
-    * @returns Result from the I2C call.
-    * @throws I2CEndpointException if access to the I2C device fails.
-    */
-  virtual uint16_t read_reg_8 ( const uint8_t reg ) throw ( I2CEndpointException );
-
-  //! Read 16 bits of data from a device register.
-  /*!
-    * @param reg The device register.
-    * @returns Result from the I2C call.
-    * @throws I2CEndpointException if access to the I2C device fails.
-    */
-  virtual uint16_t read_reg_16 ( const uint8_t reg ) throw ( I2CEndpointException );
-
-  //! Write 8 bits of data to a device register.
-  /*!
-    * @param reg The device register.
-    * @param data The data.
-    * @returns Result from the I2C call.
-    * @throws I2CEndpointException if access to the I2C device fails.
-    */
-  virtual uint16_t write_reg_8 ( const uint8_t reg, const uint8_t data ) throw ( I2CEndpointException );
-
-  //! Write 16 bits of data to a device register.
-  /*!
-    * @param reg The device register.
-    * @param data The data.
-    * @returns Result from the I2C call.
-    * @throws I2CEndpointException if access to the I2C device fails.
-    */
-  virtual uint16_t write_reg_16 ( const uint8_t reg, const uint16_t data ) throw ( I2CEndpointException );
+  //! Process an I2C request specified by a packet
+  virtual I2CPacket&& process(const I2CPacket request) throw (I2CEndpointException);
 
 private:
   int m_fd;
