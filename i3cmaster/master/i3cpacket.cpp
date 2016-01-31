@@ -44,7 +44,7 @@ I3CPacket::I3CPacket ( uint16_t data ) throw ( std::exception )
 
 bool I3CPacket::isvalid()
 {
-  uint8_t meta = getMeta();
+  uint8_t meta = (getMeta() & 0xE0 );
   uint8_t crc = 0;
   crc = CRC5x12 ( crc, destination );
   crc = CRC5x12 ( crc, data );
