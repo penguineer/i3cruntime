@@ -72,16 +72,15 @@ std::shared_ptr< I2CEndpoint > WiringPiI2CEndpointBroker::endpoint(const I2CAddr
 
 std::vector< I2CAddress >&& WiringPiI2CEndpointBroker::scan() throw (I2CEndpointException)
 {
-  //TODO it would be sooo nice if this came from WiringPi …
-
   // get a device from Wiring Pi. We'll set the slave address later, but the bus
-  // is correct, saves us the RPi management stuff.
+  // is correct, which saves us the RPi management stuff.
   const int device = wiringPiI2CSetup(0);
 
   // check for error
   if (device == -1)
-      throw I2CEndpointException(0, errno,
-				  "Error on opening the I2C bus!");
+      throw I2CEndpointException(0,
+				 errno,
+				 "Error on opening the I2C bus!");
 
   std::vector<I2CAddress> slaves;
 
@@ -96,7 +95,7 @@ std::vector< I2CAddress >&& WiringPiI2CEndpointBroker::scan() throw (I2CEndpoint
 
       // if successful, add to slaves list
       if (res >= 0)
-	slaves.push_back(I2CAddress(res));
+	slaves.push_back(I2CAddress(port));
     }
   }
 
