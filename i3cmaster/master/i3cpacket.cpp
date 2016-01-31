@@ -26,12 +26,6 @@ uint8_t I3CPacket::getMeta()
     return meta;
 }
 
-#include <stdio.h>
-// #include "../debug.h"
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <bitset>
 //! create an I3CPacket from 2 bytes serialized data that may have been transported over the i2c-bus. The metadata-byte is in the front.
 I3CPacket::I3CPacket ( uint16_t data )
 {

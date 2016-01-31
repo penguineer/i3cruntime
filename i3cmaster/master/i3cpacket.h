@@ -1,7 +1,10 @@
 #pragma once
-#include <stdint.h>
+
 #include "../api/i3c.h"
 #include <iostream>
+#include <string>
+#include <bitset>
+
 #include "../sys/i2c/i2cpacket.h"
 
 class I3CPacket
