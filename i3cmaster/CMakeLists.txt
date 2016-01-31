@@ -9,15 +9,6 @@ set(CMAKE_CXX_FLAGS "-std=c++14")
 # do we have wiringPi?
 find_library(WIRINGPI_LIBRARY NAMES wiringPi wiringPiDev)
 
-if (WIRINGPI_LIBRARY)
-  # add the target link libraries
-  target_link_libraries(i3cmaster ${WIRINGPI_LIBRARY})
-  set(WIRINGPI_FILES
-      platform/rpi/wiringpii2cendpoint.cpp
-      platform/rpi/wiringpii2cendpointbroker.cpp
-  )
-endif(WIRINGPI_LIBRARY)
-
 
 add_executable(i3cmaster
 debug.cpp
@@ -33,11 +24,22 @@ master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
 #master/i3c_commhandler.cpp
 master/operation.cpp
-${WIRINGPI_FILES}
+# ${WIRINGPI_FILES}
 )
 
+
+if (WIRINGPI_LIBRARY)
+  # add the target link libraries
+  target_link_libraries(i3cmaster ${WIRINGPI_LIBRARY})
+  set(WIRINGPI_FILES
+      platform/rpi/wiringpii2cendpoint.cpp
+      platform/rpi/wiringpii2cendpointbroker.cpp
+  )
+endif(WIRINGPI_LIBRARY)
+
+
 add_executable(i2cmaster
-debug.cpp
+# debug.cpp
 master/i2cmaster.cpp
 platform/dummy/i2cendpoint_dummy.cpp
 sys/i2c/i2cpacket.cpp
@@ -50,7 +52,7 @@ master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
 master/i3c_commhandler.cpp
 master/operation.cpp
-${WIRINGPI_FILES}
+# ${WIRINGPI_FILES}
 )
 #
 # platform/rpi/i2cendpoint_wiringpi.cpp

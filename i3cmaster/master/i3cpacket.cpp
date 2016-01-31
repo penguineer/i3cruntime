@@ -18,9 +18,7 @@ void i3cpacket::create ( uint8_t data, uint8_t destination, enum packetcounter p
     this->destination = destination;
     this->status = st;
     this->data = data;
-
-    crc = CRC5x12(crc, 0xaf);
-    crc = CRC5x12(crc, 0xfe);
+this->packetcount = pc;
 
 }
 #include <stdio.h>
