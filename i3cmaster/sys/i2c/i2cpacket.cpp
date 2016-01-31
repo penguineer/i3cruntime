@@ -22,12 +22,47 @@ namespace i2c {
 
 I2CPacket::I2CPacket(const uint16_t seqNo,
 		     const I2CAddress peer,
-	             const uint16_t data) throw()
-: m_seqNo(seqNo), m_peer(peer), m_data(data)
-{}
+		     const I2COperation op,
+	             const uint16_t data) throw(std::invalid_argument)
+: m_seqNo(seqNo), m_peer(peer), m_op(op), m_reg(0), m_data(data)
+{
+  if ( (op != I2COperation::READ_SIMPLE) &&
+       (op != I2COperation::WRITE_SIMPLE) )
+    throw std::invalid_argument("Only operations READ_SIMPLE and WRITE_SIMPLE are allowed without register.");
+}
+
+I2CPacket::I2CPacket(const uint16_t seqNo,
+		     const I2CAddress peer,
+		     const I2COperation op,
+		     const uint8_t reg,
+	             const uint16_t data) throw(std::invalid_argument)
+: m_seqNo(seqNo),
+  m_peer(peer),
+  m_op(op),
+  m_reg(reg),
+  m_data(data)
+{
+  if ( (op == I2COperation::READ_SIMPLE) ||
+       (op == I2COperation::WRITE_SIMPLE) )
+    throw std::invalid_argument("Operations READ_SIMPLE and WRITE_SIMPLE are not allowed with a register.");
+}
+
+I2CPacket::I2CPacket(const I2CPacket& other, const uint16_t data) throw()
+: m_seqNo(other.m_seqNo),
+  m_peer(other.m_peer),
+  m_op(other.m_op),
+  m_reg(other.m_reg),
+  m_data(data)
+{
+}
+
 
 I2CPacket::I2CPacket(const I2CPacket &other) throw()
-: m_seqNo(other.m_seqNo), m_peer(other.m_peer), m_data(other.m_data)
+: m_seqNo(other.m_seqNo),
+  m_peer(other.m_peer),
+  m_op(other.m_op),
+  m_reg(other.m_reg),
+  m_data(other.m_data)
 {}
 
 const uint16_t I2CPacket::seqNo() const throw()
@@ -38,6 +73,16 @@ const uint16_t I2CPacket::seqNo() const throw()
 const I2CAddress I2CPacket::peer() const throw()
 {
   return m_peer;
+}
+
+const I2COperation I2CPacket::op() const throw()
+{
+  return m_op;
+}
+
+const uint8_t I2CPacket::reg() const throw()
+{
+  return m_reg;
 }
 
 const uint16_t I2CPacket::data() const throw()
