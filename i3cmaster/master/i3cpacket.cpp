@@ -2,16 +2,14 @@
 
 using namespace i3c::sys::i2c;
 
-// TODO comments
-void i3cpacket::create ( uint8_t data, uint8_t destination, enum packetcounter pc, i3c_packet_state st )
+//! create I3CPacket from separate building blocks
+I3CPacket::I3CPacket ( uint8_t data, uint8_t destination, enum packetcounter pc, i3c_packet_state st ) : destination ( destination ), status ( st ), data ( data ), packetcount ( pc )
 {
-    this->destination = destination;
-    this->status = st;
-    this->data = data;
-    this->packetcount = pc;
+
 }
 
-uint8_t i3cpacket::getMeta()
+//! return the compiled metadata-byte for this packet
+uint8_t I3CPacket::getMeta()
 {
     uint8_t meta = 0x00;
     meta =  this->packetcount;
@@ -34,7 +32,8 @@ uint8_t i3cpacket::getMeta()
 #include <string.h>
 #include <iostream>
 #include <bitset>
-void i3cpacket::interpret ( uint16_t data )
+//! create an I3CPacket from 2 bytes serialized data that may have been transported over the i2c-bus. The metadata-byte is in the front.
+I3CPacket::I3CPacket ( uint16_t data )
 {
     uint8_t tdata;
     uint8_t meta;
@@ -46,7 +45,8 @@ void i3cpacket::interpret ( uint16_t data )
     this->crc = ( meta & 0x1f );
 }
 
-i3c::sys::i2c::I2CPacket i3cpacket::render()
+//! render this packet such that its contents are part of an i2c-packet
+i3c::sys::i2c::I2CPacket I3CPacket::render()
 {
     uint16_t i2cdata;
     i2cdata = getMeta();
@@ -57,7 +57,9 @@ i3c::sys::i2c::I2CPacket i3cpacket::render()
     return i2cpacket;
 }
 
-std::ostream& operator<< ( std::ostream &out, i3cpacket &packet )
+
+//! for easy printing and
+std::ostream& operator<< ( std::ostream &out, I3CPacket &packet )
 {
     std::bitset<8> bdest ( packet.destination );
     std::bitset<8> bmeta ( packet.getMeta() );
@@ -76,7 +78,7 @@ std::ostream& operator<< ( std::ostream &out, i3cpacket &packet )
  * Initial: 0x00
  * 	I3C check messages always start with an I2C-address, which is never 0
  */
-uint8_t i3cpacket::CRC5x12 ( uint8_t const crc, uint8_t const data )
+uint8_t I3CPacket::CRC5x12 ( uint8_t const crc, uint8_t const data )
 {
     uint8_t remainder = crc;
 

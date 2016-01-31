@@ -4,7 +4,7 @@
 #include <iostream>
 #include "../sys/i2c/i2cpacket.h"
 
-class i3cpacket
+class I3CPacket
 {
 
         /**
@@ -25,10 +25,10 @@ private:
         uint8_t crc;
 public:
         //! erzeugt aus den einzelteilen ein Paket
-        void create ( uint8_t data, uint8_t destination, enum packetcounter pc, enum i3c_packet_state st );
+        I3CPacket ( uint8_t data, uint8_t destination, enum packetcounter pc, enum i3c_packet_state st );
 
         //! this will interpret two bytes as packet and generate an i3cpacket object
-        void interpret ( uint16_t data ); //
+        I3CPacket ( uint16_t data );
 
         // TODO throw exception if it fails
         //! this will render an i3cpacket to a format that may be placed in the data-bytes of an i2c-packet. this will fail if the crc does not match
@@ -37,7 +37,7 @@ public:
         //! check if the package contains a valid crc
         bool isvalid ();
 
-        friend std::ostream& operator<< ( std::ostream &out, i3cpacket &packet );
+        friend std::ostream& operator<< ( std::ostream &out, I3CPacket &packet );
 
 
 private:

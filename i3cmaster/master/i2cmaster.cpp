@@ -57,10 +57,10 @@ int main()
     // TODO - socket öffnen um Daten entgegen zu nehmen. Diese Daten per i2c über den Bus schicken.
 // TODO initialize the i2c-bus,
 
-    i3cpacket p;
+
     uint8_t destination = 0x21;
     uint8_t data = 0xaa;
-    p.create ( data ,destination, ODD, ST_START );
+    I3CPacket p( data ,destination, ODD, ST_START );
 
     cout << p << endl;
 //  //   printf ( "%s\n", result);

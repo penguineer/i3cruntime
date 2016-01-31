@@ -41,7 +41,7 @@ private:
         char devicename[255];
         int packetcounter;
 	// I3CEndpointBroker* epb;
-        bool packet_isvalid ( i3cpacket p );
+        bool packet_isvalid ( I3CPacket p );
 };
 
 
