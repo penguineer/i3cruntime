@@ -4,7 +4,13 @@ using namespace i3c::sys::i2c;
 
 I3CPacket::I3CPacket ( uint8_t data, uint8_t destination, enum packetcounter pc, i3c_packet_state st ) : destination ( destination ), status ( st ), data ( data ), packetcount ( pc )
 {
-
+  uint8_t meta = (((this->packetcount )<<2) | this->status) <<5;
+  uint8_t crc = 0;
+  crc = CRC5x12 ( crc, destination );
+  crc = CRC5x12 ( crc, data );
+  crc = CRC5x12 ( crc, meta );
+  crc >>3;
+  this->crc = crc;
 }
 
 uint8_t I3CPacket::getMeta()
