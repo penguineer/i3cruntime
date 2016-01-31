@@ -176,11 +176,8 @@ I2CPacket&& I2CDispatcher::processI2CPacket(const I2CPacket packet) throw (std::
   if (endpoint == nullptr)
     throw std::invalid_argument("Could not retrieve endpoint!");
 
-  //make the actual call
-  const uint16_t response(endpoint->write(packet.data()));
-
-  // construct and move-return the response packet
-  return std::move(I2CPacket(packet.seqNo(), packet.peer(), response));
+  // make the call and move-return the response packet
+  return std::move(endpoint->process(packet));
 }
 
 } // namespace i2c
