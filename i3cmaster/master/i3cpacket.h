@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "../api/i3c.h"
 #include <iostream>
-
+#include "../sys/i2c/i2cpacket.h"
 
 class i3cpacket
 {
@@ -33,7 +33,7 @@ public:
 
 	// TODO throw exception if it fails
 	//! this will render an i3cpacket to a format that may be placed in the data-bytes of an i2c-packet. this will fail if the crc does not match
-	uint16_t render()
+	i3c::sys::i2c::I2CPacket render();
 
 	//! check if the package contains a valid crc
 	bool isvalid ();
