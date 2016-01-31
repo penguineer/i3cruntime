@@ -2,37 +2,47 @@
 
 using namespace i3c::sys::i2c;
 
-I3CPacket::I3CPacket ( uint8_t data, uint8_t destination, enum packetcounter pc, i3c_packet_state st ) : destination ( destination ), status ( st ), data ( data ), packetcount ( pc )
+I3CPacket::I3CPacket ( const uint8_t data,
+		       const I2CAddress destination,
+		       const enum packetcounter pc,
+		       const i3c_packet_state st )
+: m_data ( data ),
+  m_destination ( destination ),
+  m_packetcount ( pc ),
+  m_status ( st ),
+  m_crc ( calc_crc() )
 {
-  this->crc = calc_crc();
 }
 
-uint8_t I3CPacket::getMeta()
+uint8_t I3CPacket::getMeta() const
 {
-    uint8_t meta = 0x00;
-    meta =  this->packetcount;
-    meta = meta <<2;
-    meta = meta | this->status;
-    meta = meta <<5;
-    meta = meta | ( this->crc);
+    uint8_t meta = m_packetcount;
+    meta <<= 2;
+    meta |= m_status;
+    meta <<= 5;
+    meta |= m_crc;
+
     return meta;
 }
 
 #include <sstream>
 
-I3CPacket::I3CPacket ( uint16_t data ) throw ( std::runtime_error )
+inline uint8_t data2meta(const uint16_t data)
 {
-    uint8_t tdata;
-    uint8_t meta;
+  return (uint8_t)( data >> 8 );
+}
 
-    meta = ( uint8_t ) ( ( data & 0xFF00 ) >> 8 );
-    this->data= ( uint8_t ) ( data & 0x00FF );
-    this->packetcount = static_cast<packetcounter> ( meta >>7 );
-    this->status = static_cast<i3c_packet_state> ( ( meta & 0x60 ) >> 5 );
-    this->crc = ( meta & 0x1f );
-
+I3CPacket::I3CPacket ( const I2CAddress source, const uint16_t data ) throw ( std::runtime_error )
+: m_data( (uint8_t)( data & 0x00FF ) ),
+  m_destination(source),
+  // TODO the data2meta calls can be avoided by using combined calculations, see comments behint initializer
+  m_packetcount( static_cast<packetcounter>(data2meta(data) >> 7) ), // data >> 15
+  m_status( static_cast<i3c_packet_state> ((data2meta(data) & 0x60) >> 5) ), // (data & 0x600) >> 13
+  m_crc( ( data2meta(data) & 0x1f ) ) // (data & 0x1f00) >> 8
+{
     // TODO should the members be set to 0 if an exception is raised?
-    if (!isvalid())
+    // Tux: I would not raise the exception here. isValid tells if the packet is fine.
+    if (!isValidCRC())
     {
       std::stringstream ss;
       ss << this << "calculated crc: " << calc_crc();
@@ -40,19 +50,21 @@ I3CPacket::I3CPacket ( uint16_t data ) throw ( std::runtime_error )
     }
 }
 
-uint8_t I3CPacket::calc_crc() {
-  uint8_t meta = (getMeta() & 0xE0 );
+uint8_t I3CPacket::calc_crc() const
+{
   uint8_t crc = 0;
-  crc = CRC5x12 ( crc, destination );
-  crc = CRC5x12 ( crc, data );
-  crc = CRC5x12 ( crc, meta );
-  crc >>3;
+
+  crc = CRC5x12 ( crc, m_destination );
+  crc = CRC5x12 ( crc, m_data );
+  crc = CRC5x12 ( crc, getMeta() & 0xE0 );
+  crc >>= 3;
+
   return crc;
 }
 
-bool I3CPacket::isvalid()
+bool I3CPacket::isValidCRC() const
 {
-  return (calc_crc() == this->crc);
+  return calc_crc() == m_crc;
 }
 
 
@@ -60,23 +72,24 @@ i3c::sys::i2c::I2CPacket I3CPacket::render()
 {
     uint16_t i2cdata;
     i2cdata = getMeta();
-    i2cdata <<8;
-    i2cdata = i2cdata | this->data;
-    I2CPacket i2cpacket ( this->packetcount, this->destination,i2cdata );
+    i2cdata <<= 8;
+    i2cdata |=  m_data;
+    // TODO this may not be the best sequence number
+    I2CPacket i2cpacket ( m_packetcount, m_destination, I2COperation::WRITE_SIMPLE, i2cdata );
 
     return i2cpacket;
 }
 
+/**
+  * See http://users.ece.cmu.edu/~koopman/crc/ for details.
+  *
+  * The CRC polynomial is
+  * 	0x12 => x^5 + x^2 + 1
+  * 	which is 0x25 in explicit +1 notation,
+  * 	then moved to the beginning of the byte
+  */
+#define POLYNOMIAL (0x25 << 2)
 
-std::ostream& operator<< ( std::ostream &out, I3CPacket &packet )
-{
-    std::bitset<8> bdest ( packet.destination );
-    std::bitset<8> bmeta ( packet.getMeta() );
-    std::bitset<8> bdata ( packet.data );
-    out << "[ destination: " << std::hex << unsigned ( packet.destination )  << "(" << bdest << ") metadata: "  << unsigned ( packet.getMeta() ) <<
-        " (" << bmeta << ") data: " << unsigned ( packet.data ) << "(" << bdata  << ") ]" << std::endl;
-    return out;
-}
 /**
  * Calculate a 5-bit CRC based on the generator polynom 0x12 (see definition of POLYNOMIAL).
  *
@@ -87,7 +100,7 @@ std::ostream& operator<< ( std::ostream &out, I3CPacket &packet )
  * Initial: 0x00
  * 	I3C check messages always start with an I2C-address, which is never 0
  */
-uint8_t I3CPacket::CRC5x12 ( uint8_t const crc, uint8_t const data )
+uint8_t I3CPacket::CRC5x12 ( uint8_t const crc, uint8_t const data ) const
 {
     uint8_t remainder = crc;
 
@@ -104,6 +117,17 @@ uint8_t I3CPacket::CRC5x12 ( uint8_t const crc, uint8_t const data )
     }
 
     return remainder;
+}
+
+
+std::ostream& operator<< ( std::ostream &out, const I3CPacket &packet )
+{
+    std::bitset<8> bdest ( packet.m_destination );
+    std::bitset<8> bmeta ( packet.getMeta() );
+    std::bitset<8> bdata ( packet.m_data );
+    out << "[ destination: " << std::hex << unsigned ( packet.m_destination )  << "(" << bdest << ") metadata: "  << unsigned ( packet.getMeta() ) <<
+        " (" << bmeta << ") data: " << unsigned ( packet.m_data ) << "(" << bdata  << ") ]" << std::endl;
+    return out;
 }
 
 
