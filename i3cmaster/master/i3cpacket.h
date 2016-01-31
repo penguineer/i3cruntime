@@ -25,8 +25,15 @@ private:
         enum i3c_packet_state status;
       uint8_t crc;
 public:
+  //! erzeugt aus den einzelteilen ein Paket
         void create ( uint8_t data, uint8_t destination, enum packetcounter pc, enum i3c_packet_state st );
-	void interpret (uint8_t data, uint8_t metadata);
+
+	//! this will interpret two bytes as packet and generate an i3cpacket object
+	void interpret(uint16_t data); //
+
+	// TODO throw exception if it fails
+	//! this will render an i3cpacket to a format that may be placed in the data-bytes of an i2c-packet. this will fail if the crc does not match
+	uint16_t render()
 
 	//! check if the package contains a valid crc
 	bool isvalid ();
