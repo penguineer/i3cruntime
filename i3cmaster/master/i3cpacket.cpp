@@ -2,13 +2,11 @@
 
 using namespace i3c::sys::i2c;
 
-//! create I3CPacket from separate building blocks
 I3CPacket::I3CPacket ( uint8_t data, uint8_t destination, enum packetcounter pc, i3c_packet_state st ) : destination ( destination ), status ( st ), data ( data ), packetcount ( pc )
 {
 
 }
 
-//! return the compiled metadata-byte for this packet
 uint8_t I3CPacket::getMeta()
 {
     uint8_t meta = 0x00;
@@ -26,8 +24,8 @@ uint8_t I3CPacket::getMeta()
     return meta;
 }
 
-//! create an I3CPacket from 2 bytes serialized data that may have been transported over the i2c-bus. The metadata-byte is in the front.
-I3CPacket::I3CPacket ( uint16_t data )
+
+I3CPacket::I3CPacket ( uint16_t data ) throw ( std::exception )
 {
     uint8_t tdata;
     uint8_t meta;
@@ -37,9 +35,10 @@ I3CPacket::I3CPacket ( uint16_t data )
     this->packetcount = static_cast<packetcounter> ( meta >>7 );
     this->status = static_cast<i3c_packet_state> ( ( meta & 0x60 ) >> 5 );
     this->crc = ( meta & 0x1f );
+
+
 }
 
-//! render this packet such that its contents are part of an i2c-packet
 i3c::sys::i2c::I2CPacket I3CPacket::render()
 {
     uint16_t i2cdata;
@@ -52,7 +51,7 @@ i3c::sys::i2c::I2CPacket I3CPacket::render()
 }
 
 
-//! for easy printing and
+
 std::ostream& operator<< ( std::ostream &out, I3CPacket &packet )
 {
     std::bitset<8> bdest ( packet.destination );
