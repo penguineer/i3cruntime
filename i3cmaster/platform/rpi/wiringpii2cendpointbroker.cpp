@@ -34,10 +34,14 @@ namespace rpi {
 
 
 WiringPiI2CEndpointBroker::WiringPiI2CEndpointBroker()
+: m_endpoints(), m_endpoints_mutex()
 {}
 
 std::shared_ptr< I2CEndpoint > WiringPiI2CEndpointBroker::endpoint(const I2CAddress address) throw (I2CEndpointException)
 {
+  // lock mutex for the EndpointsMap
+   std::lock_guard<std::mutex> lock(m_endpoints_mutex);
+
   // try to get endpoint from cache
   EndpointsMap::iterator it( m_endpoints.find(address) );
 

@@ -18,6 +18,7 @@
 #include "../../sys/i2c/i2cendpointbroker.h"
 
 #include <map>
+#include <mutex>
 
 using namespace i3c::sys::i2c;
 
@@ -38,6 +39,7 @@ public:
 private:
   typedef std::map<I2CAddress, std::shared_ptr<I2CEndpoint> > EndpointsMap;
   EndpointsMap m_endpoints;
+  std::mutex m_endpoints_mutex;
 };
 
 } // namespace rpi
