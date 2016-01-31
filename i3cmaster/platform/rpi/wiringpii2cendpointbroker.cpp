@@ -19,15 +19,12 @@
 
 // These includes are for bus scanning
 #include <iostream>
-#include <cstdio>
-#include <cstdlib>
 #include <cerrno>
 #include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include <linux/i2c-dev.h>
+
+#include <wiringPiI2C.h>
+
 
 using namespace i3c::sys::i2c;
 
@@ -62,18 +59,29 @@ std::shared_ptr< I2CEndpoint > WiringPiI2CEndpointBroker::endpoint(const I2CAddr
   return it->second;
 }
 
+/*
+ * The following define comes from linux/i2c-dev.h, but is copied here to save us an include
+ * and the dependency to the packet libi2c-dev.
+ */
+
+/* NOTE: Slave address is 7 or 10 bits, but 10-bit addresses
+ * are NOT supported! (due to code brokenness)
+ */
+#define I2C_SLAVE	0x0703	/* Use this slave address */
+
+
 std::vector< I2CAddress >&& WiringPiI2CEndpointBroker::scan() throw (I2CEndpointException)
 {
   //TODO it would be sooo nice if this came from WiringPi …
 
+  // get a device from Wiring Pi. We'll set the slave address later, but the bus
+  // is correct, saves us the RPi management stuff.
+  const int device = wiringPiI2CSetup(0);
 
-  //TODO put this into a configuration file; but we don't want to expose it in the API
-  const char* busname = "/dev/i2c-1";
-
-  // try to open the I2C bus
-  const int device = ::open(busname, O_RDWR);
-  if (device < 0)
-    throw new I2CEndpointException(I2CAddress(0), errno, "cannot open i2c bus");
+  // check for error
+  if (device == -1)
+      throw I2CEndpointException(0, errno,
+				  "Error on opening the I2C bus!");
 
   std::vector<I2CAddress> slaves;
 
@@ -84,7 +92,7 @@ std::vector< I2CAddress >&& WiringPiI2CEndpointBroker::scan() throw (I2CEndpoint
       throw I2CEndpointException(I2CAddress(port), errno, "ioctl() I2C_SLAVE failed");
     else {
       // try to read device
-      uint8_t res = ::i2c_smbus_read_byte(device);
+      uint8_t res = wiringPiI2CRead(device);
 
       // if successful, add to slaves list
       if (res >= 0)
