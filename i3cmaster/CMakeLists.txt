@@ -24,7 +24,7 @@ master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
 #master/i3c_commhandler.cpp
 master/operation.cpp
-# ${WIRINGPI_FILES}
+${WIRINGPI_FILES}
 )
 
 
@@ -55,7 +55,7 @@ master/i3cendpoint.cpp
 master/i3cendpointbroker.cpp
 master/i3c_commhandler.cpp
 master/operation.cpp
-# ${WIRINGPI_FILES}
+${WIRINGPI_FILES}
 )
 #
 # platform/rpi/i2cendpoint_wiringpi.cpp

@@ -4,13 +4,7 @@ using namespace i3c::sys::i2c;
 
 I3CPacket::I3CPacket ( uint8_t data, uint8_t destination, enum packetcounter pc, i3c_packet_state st ) : destination ( destination ), status ( st ), data ( data ), packetcount ( pc )
 {
-  uint8_t meta = (((this->packetcount )<<2) | this->status) <<5;
-  uint8_t crc = 0;
-  crc = CRC5x12 ( crc, destination );
-  crc = CRC5x12 ( crc, data );
-  crc = CRC5x12 ( crc, meta );
-  crc >>3;
-  this->crc = crc;
+  this->crc = calc_crc();
 }
 
 uint8_t I3CPacket::getMeta()
@@ -24,8 +18,9 @@ uint8_t I3CPacket::getMeta()
     return meta;
 }
 
+#include <sstream>
 
-I3CPacket::I3CPacket ( uint16_t data ) throw ( std::exception )
+I3CPacket::I3CPacket ( uint16_t data ) throw ( std::runtime_error )
 {
     uint8_t tdata;
     uint8_t meta;
@@ -38,19 +33,26 @@ I3CPacket::I3CPacket ( uint16_t data ) throw ( std::exception )
 
     // TODO should the members be set to 0 if an exception is raised?
     if (!isvalid())
-      throw std::exception();
-
+    {
+      std::stringstream ss;
+      ss << this << "calculated crc: " << calc_crc();
+      throw std::runtime_error(std::string("CRC from the input value does not match the data: ") + ss.str());
+    }
 }
 
-bool I3CPacket::isvalid()
-{
+uint8_t I3CPacket::calc_crc() {
   uint8_t meta = (getMeta() & 0xE0 );
   uint8_t crc = 0;
   crc = CRC5x12 ( crc, destination );
   crc = CRC5x12 ( crc, data );
   crc = CRC5x12 ( crc, meta );
   crc >>3;
-  return (crc == this->crc);
+  return crc;
+}
+
+bool I3CPacket::isvalid()
+{
+  return (calc_crc() == this->crc);
 }
 
 

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <bitset>
-
+#include <stdexcept>
 #include "../sys/i2c/i2cpacket.h"
 
 using namespace i3c::sys::i2c;
@@ -34,7 +34,7 @@ public:
 
 	// TODO is std::exception adequate here?
 	//! create an I3CPacket from 2 bytes serialized data that may have been transported over the i2c-bus. The metadata-byte is in the front. This will fail if the crc does not match.
-        I3CPacket ( uint16_t data ) throw (std::exception);
+        I3CPacket ( uint16_t data ) throw (std::runtime_error);
 
 	//! render this packet such that its contents are part of an i2c-packet
         I2CPacket render();
@@ -47,7 +47,9 @@ public:
 private:
         //! check if the package contains a valid crc
         bool isvalid ();
-	//! calculate the 5-bit CRCsum
+	//! function to calculate the 5-bit-CRCsum of the packet
+	uint8_t calc_crc();
+	//! helper function to calculate the 5-bit CRCsum of one byte
         uint8_t CRC5x12 ( uint8_t crc, uint8_t data );
         //! return the compiled metadata-byte for this packet
         uint8_t getMeta();
