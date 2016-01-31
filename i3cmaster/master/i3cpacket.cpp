@@ -36,8 +36,22 @@ I3CPacket::I3CPacket ( uint16_t data ) throw ( std::exception )
     this->status = static_cast<i3c_packet_state> ( ( meta & 0x60 ) >> 5 );
     this->crc = ( meta & 0x1f );
 
+    if (!isvalid())
+      throw std::exception();
 
 }
+
+bool I3CPacket::isvalid()
+{
+  uint8_t meta = getMeta();
+  uint8_t crc = 0;
+  crc = CRC5x12 ( crc, destination );
+  crc = CRC5x12 ( crc, data );
+  crc = CRC5x12 ( crc, meta );
+  crc >>3;
+  return (crc == this->crc);
+}
+
 
 i3c::sys::i2c::I2CPacket I3CPacket::render()
 {
@@ -49,7 +63,6 @@ i3c::sys::i2c::I2CPacket I3CPacket::render()
 
     return i2cpacket;
 }
-
 
 
 std::ostream& operator<< ( std::ostream &out, I3CPacket &packet )

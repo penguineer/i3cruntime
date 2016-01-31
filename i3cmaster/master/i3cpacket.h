@@ -48,7 +48,7 @@ private:
         //! check if the package contains a valid crc
         bool isvalid ();
 	//! calculate the 5-bit CRCsum
-        uint8_t CRC5x12 ( uint8_t crc, uint8_t data );#
+        uint8_t CRC5x12 ( uint8_t crc, uint8_t data );
         //! return the compiled metadata-byte for this packet
         uint8_t getMeta();
 };
