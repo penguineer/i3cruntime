@@ -186,6 +186,7 @@ int main(void)
   bootloader_flash_init();
 
   // TODO define the actual runtime content
+  DDRA = (1 << PA0);
 
   // Boot loader main loop
   // 		Ideally this loop is iterated only once,
@@ -205,6 +206,8 @@ int main(void)
 	     (PGM_P) BOOTLOADER_FUNC_ADDRESS,
 	     sizeof(bootloader_functions));
 
+    PORTA = (1 << PA0);
+    
     // call applicaton if present
     if (bootloader_functions.app_main != NULL) {
 	cli ();

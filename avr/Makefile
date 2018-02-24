@@ -6,7 +6,9 @@
 
 #PROGRAMMER = avrisp2
 #PROGRAMMER = usbasp
-PROGRAMMER = usbtiny
+#PROGRAMMER = usbtiny
+PROGRAMMER = linuxspi
+PORT = /dev/spidev0.0
 CPU_GCC = attiny44
 CPU_DUDE = t44
 
@@ -27,13 +29,16 @@ PROGRAM = i3c_runtime
 all: $(PROGRAM).hex
 
 program: $(PROGRAM).hex
-	avrdude -c $(PROGRAMMER) -P usb -p $(CPU_DUDE) -U flash:w:$(PROGRAM).hex
+	echo 25 > /sys/class/gpio/export
+	avrdude -c $(PROGRAMMER) -P $(PORT) -p $(CPU_DUDE) -U flash:w:$(PROGRAM).hex
 	
 fuse:
-	avrdude -c $(PROGRAMMER) -P usb -p $(CPU_DUDE) -U lfuse:w:0xc2:m -U hfuse:w:0xdd:m -U efuse:w:0xfe:m 
+	echo 25 > /sys/class/gpio/export
+	avrdude -c $(PROGRAMMER) -P $(PORT) -p $(CPU_DUDE) -U lfuse:w:0xc2:m -U hfuse:w:0xdd:m -U efuse:w:0xfe:m 
 
 readout:
-	avrdude -c $(PROGRAMMER) -P usb -p $(CPU_DUDE) -U flash:r:flash_content.hex:i
+	echo 25 > /sys/class/gpio/export
+	avrdude -c $(PROGRAMMER) -P $(PORT) -p $(CPU_DUDE) -U flash:r:flash_content.hex:i
 
 clean:
 	rm *.o *.elf *.hex
